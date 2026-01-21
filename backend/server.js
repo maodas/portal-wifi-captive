@@ -349,12 +349,57 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Middleware para errores 404
+// Ruta principal raíz
+app.get('/', (req, res) => {
+  res.json({
+    message: '🚀 API Portal WiFi Cautivo',
+    version: '1.0.0',
+    status: 'operational',
+    endpoints: {
+      api: '/api',
+      register: '/api/register (POST)',
+      users: '/api/users (GET)',
+      stats: '/api/stats (GET)',
+      export: '/api/export/csv (GET)',
+      admin: '/admin'
+    },
+    documentation: 'Visita /admin para el panel de administración',
+    health: '/api/health'
+  });
+});
+
+// También agrega esta ruta para servir el frontend si alguien accede al backend
+app.get('/portal', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Portal WiFi - Backend</title>
+      <meta http-equiv="refresh" content="0;url=${process.env.FRONTEND_URL || 'https://wifi-portal-frontend.onrender.com'}">
+    </head>
+    <body>
+      <p>Redirigiendo al portal WiFi... Si no redirige, <a href="${process.env.FRONTEND_URL || 'https://wifi-portal-frontend.onrender.com'}">haz click aquí</a></p>
+    </body>
+    </html>
+  `);
+});
+
+// Middleware para errores 404 (esto YA deberías tenerlo)
 app.use((req, res) => {
   res.status(404).json({
     success: false,
     error: 'Endpoint no encontrado',
-    path: req.path
+    path: req.path,
+    availableEndpoints: {
+      root: 'GET /',
+      api: 'GET /api',
+      register: 'POST /api/register',
+      users: 'GET /api/users',
+      stats: 'GET /api/stats',
+      export: 'GET /api/export/csv',
+      admin: 'GET /admin',
+      portal: 'GET /portal'
+    }
   });
 });
 
