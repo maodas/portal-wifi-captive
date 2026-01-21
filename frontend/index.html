@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso WiFi Gratis</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4b5563;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .social-input {
+            display: flex;
+            align-items: center;
+        }
+
+        .social-input i {
+            background: #f3f4f6;
+            padding: 14px;
+            border-radius: 10px 0 0 10px;
+            color: #6b7280;
+            min-width: 50px;
+            text-align: center;
+        }
+
+        .social-input input {
+            border-radius: 0 10px 10px 0;
+            border-left: none;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            width: 100%;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .terms {
+            font-size: 12px;
+            color: #6b7280;
+            text-align: center;
+            margin-top: 20px;
+            line-height: 1.5;
+        }
+
+        .terms a {
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .success-message {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .success-message i {
+            font-size: 60px;
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-wifi"></i> WiFi Gratis</h1>
+            <p>Complete sus datos para acceder a Internet</p>
+        </div>
+
+        <div class="content">
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="fullName"><i class="fas fa-user"></i> Nombre Completo *</label>
+                    <input type="text" id="fullName" required placeholder="Ingrese su nombre completo">
+                </div>
+
+                <div class="form-group">
+                    <label for="phone"><i class="fas fa-phone"></i> Teléfono / WhatsApp *</label>
+                    <input type="tel" id="phone" required placeholder="Ej: +1 XXX-XXX-XXXX o +502 XXXX-XXXX">
+                </div>
+
+                <div class="form-group">
+                    <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico *</label>
+                    <input type="email" id="email" required placeholder="ejemplo@correo.com">
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-share-alt"></i> Redes Sociales (Opcional)</label>
+                    <div class="social-grid">
+                        <div class="social-input">
+                            <i class="fab fa-facebook-f"></i>
+                            <input type="text" id="facebook" placeholder="Usuario Facebook">
+                        </div>
+                        <div class="social-input">
+                            <i class="fab fa-instagram"></i>
+                            <input type="text" id="instagram" placeholder="Usuario Instagram">
+                        </div>
+                        <div class="social-input">
+                            <i class="fab fa-twitter"></i>
+                            <input type="text" id="twitter" placeholder="@usuario">
+                        </div>
+                        <div class="social-input">
+                            <i class="fab fa-linkedin-in"></i>
+                            <input type="text" id="linkedin" placeholder="Perfil LinkedIn">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="loader" id="loader"></div>
+                
+                <button type="submit" class="btn" id="submitBtn">
+                    <i class="fas fa-unlock-alt"></i> Conectar a Internet
+                </button>
+                
+                <p class="terms">
+                    Al conectarse, acepta nuestros 
+                    <a href="#">Términos de Servicio</a> y 
+                    <a href="#">Política de Privacidad</a>
+                </p>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                <i class="fas fa-check-circle"></i>
+                <h2>¡Conexión Exitosa!</h2>
+                <p>Ya tienes acceso a Internet</p>
+                <p><strong>Código de acceso:</strong> <span id="accessCode"></span></p>
+                <p style="font-size: 14px; margin-top: 20px;">
+                    Este código será válido por 24 horas
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3001/api';
+
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const loader = document.getElementById('loader');
+            const form = document.getElementById('registrationForm');
+            const successMessage = document.getElementById('successMessage');
+            
+            // Mostrar loader
+            submitBtn.style.display = 'none';
+            loader.style.display = 'block';
+            
+            const userData = {
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                facebook: document.getElementById('facebook').value,
+                instagram: document.getElementById('instagram').value,
+                twitter: document.getElementById('twitter').value,
+                linkedin: document.getElementById('linkedin').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Session-Id': Date.now().toString()
+                    },
+                    body: JSON.stringify(userData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Ocultar formulario y mostrar éxito
+                    form.style.display = 'none';
+                    loader.style.display = 'none';
+                    document.getElementById('accessCode').textContent = result.accessCode;
+                    successMessage.style.display = 'block';
+                    
+                    // Redirigir después de 5 segundos
+                    setTimeout(() => {
+                        window.location.href = 'http://www.google.com';
+                    }, 5000);
+                } else {
+                    alert('Error: ' + result.error);
+                    submitBtn.style.display = 'block';
+                    loader.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión. Intente nuevamente.');
+                submitBtn.style.display = 'block';
+                loader.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
