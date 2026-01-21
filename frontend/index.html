@@ -127,6 +127,11 @@
             box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
         }
 
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .terms {
             font-size: 12px;
             color: #6b7280;
@@ -163,9 +168,35 @@
             display: none;
         }
 
+        .countdown {
+            font-size: 14px;
+            color: #6b7280;
+            margin-top: 15px;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .content {
+                padding: 25px;
+            }
+            
+            .social-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -177,6 +208,8 @@
         </div>
 
         <div class="content">
+            <div class="error-message" id="errorMessage"></div>
+            
             <form id="registrationForm">
                 <div class="form-group">
                     <label for="fullName"><i class="fas fa-user"></i> Nombre Completo *</label>
@@ -185,7 +218,7 @@
 
                 <div class="form-group">
                     <label for="phone"><i class="fas fa-phone"></i> Teléfono / WhatsApp *</label>
-                    <input type="tel" id="phone" required placeholder="Ej: +1 XXX-XXX-XXXX o +502 XXXX-XXXX">
+                    <input type="tel" id="phone" required placeholder="Ej: +51 987654321">
                 </div>
 
                 <div class="form-group">
@@ -223,8 +256,8 @@
                 
                 <p class="terms">
                     Al conectarse, acepta nuestros 
-                    <a href="#">Términos de Servicio</a> y 
-                    <a href="#">Política de Privacidad</a>
+                    <a href="#" onclick="showTerms()">Términos de Servicio</a> y 
+                    <a href="#" onclick="showPrivacy()">Política de Privacidad</a>
                 </p>
             </form>
 
@@ -232,7 +265,8 @@
                 <i class="fas fa-check-circle"></i>
                 <h2>¡Conexión Exitosa!</h2>
                 <p>Ya tienes acceso a Internet</p>
-                <p><strong>Código de acceso:</strong> <span id="accessCode"></span></p>
+                <p><strong>Código de acceso:</strong> <span id="accessCode" style="font-size: 24px; color: #4f46e5;"></span></p>
+                <p class="countdown">Redirigiendo en <span id="countdown">5</span> segundos...</p>
                 <p style="font-size: 14px; margin-top: 20px;">
                     Este código será válido por 24 horas
                 </p>
@@ -241,7 +275,29 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3001/api';
+        // URL de la API - Cambia esto según tu despliegue
+        const API_URL = 'https://wifi-portal-backend.onrender.com/api';
+        // Para desarrollo local: 'http://localhost:3001/api'
+        
+        // Generar ID de sesión único
+        const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        
+        // Configurar API URL automáticamente en producción
+        function getApiUrl() {
+            // Si estamos en localhost, usar local
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:3001/api';
+            }
+            // Si la página ya está en Render, usar el backend de Render
+            if (window.location.hostname.includes('render.com')) {
+                // Extraer nombre del servicio frontend y construir URL del backend
+                const hostname = window.location.hostname;
+                const serviceName = hostname.split('-')[0] + '-' + hostname.split('-')[1];
+                return `https://${serviceName}-backend.onrender.com/api`;
+            }
+            // Por defecto, usar la URL configurada
+            return API_URL;
+        }
 
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -250,27 +306,51 @@
             const loader = document.getElementById('loader');
             const form = document.getElementById('registrationForm');
             const successMessage = document.getElementById('successMessage');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Resetear mensajes de error
+            errorMessage.style.display = 'none';
+            
+            // Validaciones básicas
+            const fullName = document.getElementById('fullName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (!fullName || !phone || !email) {
+                showError('Por favor complete todos los campos requeridos');
+                return;
+            }
+            
+            if (!validateEmail(email)) {
+                showError('Por favor ingrese un email válido');
+                return;
+            }
             
             // Mostrar loader
-            submitBtn.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
             loader.style.display = 'block';
             
             const userData = {
-                fullName: document.getElementById('fullName').value,
-                phone: document.getElementById('phone').value,
-                email: document.getElementById('email').value,
-                facebook: document.getElementById('facebook').value,
-                instagram: document.getElementById('instagram').value,
-                twitter: document.getElementById('twitter').value,
-                linkedin: document.getElementById('linkedin').value
+                fullName: fullName,
+                phone: phone,
+                email: email,
+                facebook: document.getElementById('facebook').value.trim(),
+                instagram: document.getElementById('instagram').value.trim(),
+                twitter: document.getElementById('twitter').value.trim(),
+                linkedin: document.getElementById('linkedin').value.trim()
             };
             
             try {
-                const response = await fetch(`${API_URL}/register`, {
+                const currentApiUrl = getApiUrl();
+                console.log('Enviando datos a:', currentApiUrl);
+                
+                const response = await fetch(`${currentApiUrl}/register`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Session-Id': Date.now().toString()
+                        'Session-Id': sessionId,
+                        'Wifi-Network': 'WiFi-Gratis'
                     },
                     body: JSON.stringify(userData)
                 });
@@ -281,23 +361,78 @@
                     // Ocultar formulario y mostrar éxito
                     form.style.display = 'none';
                     loader.style.display = 'none';
-                    document.getElementById('accessCode').textContent = result.accessCode;
+                    document.getElementById('accessCode').textContent = result.data.accessCode;
                     successMessage.style.display = 'block';
                     
-                    // Redirigir después de 5 segundos
-                    setTimeout(() => {
-                        window.location.href = 'http://www.google.com';
-                    }, 5000);
+                    // Iniciar cuenta regresiva
+                    let countdown = result.countdown || 5;
+                    const countdownElement = document.getElementById('countdown');
+                    
+                    const countdownInterval = setInterval(() => {
+                        countdown--;
+                        countdownElement.textContent = countdown;
+                        
+                        if (countdown <= 0) {
+                            clearInterval(countdownInterval);
+                            // Redirigir a Google o URL configurada
+                            window.location.href = result.redirectUrl || 'https://www.google.com';
+                        }
+                    }, 1000);
+                    
+                    // Opcional: Guardar en localStorage
+                    localStorage.setItem('wifiAccessCode', result.data.accessCode);
+                    localStorage.setItem('wifiUserEmail', email);
+                    
                 } else {
-                    alert('Error: ' + result.error);
-                    submitBtn.style.display = 'block';
-                    loader.style.display = 'none';
+                    showError(result.error || 'Error en el registro. Intente nuevamente.');
+                    resetForm();
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error de conexión. Intente nuevamente.');
-                submitBtn.style.display = 'block';
-                loader.style.display = 'none';
+                showError('Error de conexión. Verifique su conexión a Internet e intente nuevamente.');
+                resetForm();
+            }
+        });
+        
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            resetForm();
+        }
+        
+        function resetForm() {
+            const submitBtn = document.getElementById('submitBtn');
+            const loader = document.getElementById('loader');
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-unlock-alt"></i> Conectar a Internet';
+            loader.style.display = 'none';
+        }
+        
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        function showTerms() {
+            alert('Términos de Servicio:\n\n1. El WiFi es gratuito por 24 horas.\n2. No se permite contenido ilegal.\n3. Su información será protegida según nuestra política de privacidad.\n4. El servicio puede ser interrumpido por mantenimiento.');
+        }
+        
+        function showPrivacy() {
+            alert('Política de Privacidad:\n\n1. Solo recolectamos información necesaria para el acceso.\n2. No compartimos sus datos con terceros.\n3. Puede solicitar la eliminación de sus datos.\n4. Usamos cookies para mejorar la experiencia.');
+        }
+        
+        // Detectar si ya tiene acceso guardado
+        window.addEventListener('load', () => {
+            const savedCode = localStorage.getItem('wifiAccessCode');
+            if (savedCode) {
+                const useSaved = confirm(`Ya tienes un código de acceso guardado: ${savedCode}\n¿Deseas usarlo?`);
+                if (useSaved) {
+                    window.location.href = 'https://www.google.com';
+                } else {
+                    localStorage.removeItem('wifiAccessCode');
+                }
             }
         });
     </script>
