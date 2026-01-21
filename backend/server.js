@@ -12,21 +12,13 @@ const PORT = process.env.PORT || 3001;
 
 // Configuración de seguridad
 app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdn.jsdelivr.net"],
-      fontSrc: ["'self'", "https://cdnjs.cloudflare.com"],
-    },
-  },
-  crossOriginEmbedderPolicy: false,
+  contentSecurityPolicy: false, // Simplificado para desarrollo
 }));
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // límite por IP
+  windowMs: 15 * 60 * 1000,
+  max: 100,
   message: 'Demasiadas solicitudes desde esta IP, por favor intente más tarde.'
 });
 app.use('/api/', limiter);
@@ -35,7 +27,6 @@ app.use('/api/', limiter);
 app.use(morgan('combined'));
 app.use(cors({
   origin: function(origin, callback) {
-    // Permitir solicitudes sin origen (como apps móviles o curl)
     if (!origin) return callback(null, true);
     
     const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
@@ -103,12 +94,6 @@ const userSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Índices para mejor rendimiento
-userSchema.index({ email: 1 });
-userSchema.index({ phone: 1 });
-userSchema.index({ accessDate: -1 });
-userSchema.index({ status: 1 });
-
 const User = mongoose.model('User', userSchema);
 
 // Almacenamiento en memoria si MongoDB falla
@@ -124,17 +109,6 @@ function generateAccessCode() {
   return `WIFI-${code}`;
 }
 
-// Middleware para obtener info del dispositivo
-app.use((req, res, next) => {
-  req.deviceInfo = {
-    ip: req.ip || req.connection.remoteAddress,
-    userAgent: req.headers['user-agent'] || '',
-    acceptLanguage: req.headers['accept-language'] || '',
-    referer: req.headers['referer'] || ''
-  };
-  next();
-});
-
 // Ruta de health check para Render
 app.get('/api/health', (req, res) => {
   const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
@@ -147,7 +121,26 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Ruta principal
+// ⭐⭐⭐ RUTA RAÍZ - ESTO ARREGLA TU ERROR ⭐⭐⭐
+app.get('/', (req, res) => {
+  res.json({
+    message: '🚀 API Portal WiFi Cautivo',
+    version: '1.0.0',
+    status: 'operational',
+    endpoints: {
+      api: '/api',
+      register: '/api/register (POST)',
+      users: '/api/users (GET)',
+      stats: '/api/stats (GET)',
+      export: '/api/export/csv (GET)',
+      admin: '/admin'
+    },
+    documentation: 'Visita /admin para el panel de administración',
+    health: '/api/health'
+  });
+});
+
+// Ruta principal del API
 app.get('/api/', (req, res) => {
   res.json({
     message: 'API Portal WiFi Cautivo',
@@ -185,8 +178,11 @@ app.post('/api/register', async (req, res) => {
       instagram: (instagram || '').trim(),
       twitter: (twitter || '').trim(),
       linkedin: (linkedin || '').trim(),
-      ipAddress: req.deviceInfo.ip,
-      deviceInfo: JSON.stringify(req.deviceInfo),
+      ipAddress: req.ip || req.connection.remoteAddress,
+      deviceInfo: JSON.stringify({
+        userAgent: req.headers['user-agent'] || '',
+        acceptLanguage: req.headers['accept-language'] || ''
+      }),
       sessionId,
       accessCode,
       wifiNetwork: req.headers['wifi-network'] || 'WiFi-Gratis',
@@ -220,7 +216,7 @@ app.post('/api/register', async (req, res) => {
         expiresIn: '24 horas'
       },
       redirectUrl: process.env.FRONTEND_REDIRECT || 'https://www.google.com',
-      countdown: 5 // segundos antes de redirección
+      countdown: 5
     };
     
     res.status(201).json(response);
@@ -229,8 +225,7 @@ app.post('/api/register', async (req, res) => {
     console.error('❌ Error en registro:', error);
     res.status(500).json({ 
       success: false, 
-      error: 'Error interno del servidor',
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      error: 'Error interno del servidor'
     });
   }
 });
@@ -349,26 +344,7 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Ruta principal raíz
-app.get('/', (req, res) => {
-  res.json({
-    message: '🚀 API Portal WiFi Cautivo',
-    version: '1.0.0',
-    status: 'operational',
-    endpoints: {
-      api: '/api',
-      register: '/api/register (POST)',
-      users: '/api/users (GET)',
-      stats: '/api/stats (GET)',
-      export: '/api/export/csv (GET)',
-      admin: '/admin'
-    },
-    documentation: 'Visita /admin para el panel de administración',
-    health: '/api/health'
-  });
-});
-
-// También agrega esta ruta para servir el frontend si alguien accede al backend
+// Ruta para redirigir al portal
 app.get('/portal', (req, res) => {
   res.send(`
     <!DOCTYPE html>
@@ -384,7 +360,7 @@ app.get('/portal', (req, res) => {
   `);
 });
 
-// Middleware para errores 404 (esto YA deberías tenerlo)
+// Middleware para errores 404
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -398,7 +374,8 @@ app.use((req, res) => {
       stats: 'GET /api/stats',
       export: 'GET /api/export/csv',
       admin: 'GET /admin',
-      portal: 'GET /portal'
+      portal: 'GET /portal',
+      health: 'GET /api/health'
     }
   });
 });
@@ -408,8 +385,7 @@ app.use((err, req, res, next) => {
   console.error('🔥 Error:', err.stack);
   res.status(500).json({
     success: false,
-    error: 'Error interno del servidor',
-    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+    error: 'Error interno del servidor'
   });
 });
 
