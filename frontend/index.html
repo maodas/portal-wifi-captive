@@ -3,65 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso WiFi Gratis</title>
+    <title>Acceso WiFi Gratis - Apoyo Migrantes Retornados</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* Mejoras para móviles */
-            @media (max-width: 480px) {
-                .container {
-                    border-radius: 15px;
-                    margin: 10px;
-                }
-                
-                .header {
-                    padding: 20px;
-                }
-                
-                .header h1 {
-                    font-size: 24px;
-                }
-                
-                .content {
-                    padding: 25px 20px;
-                }
-                
-                input {
-                    padding: 16px 12px;
-                    font-size: 16px; /* Evita zoom en iOS */
-                }
-                
-                .btn {
-                    padding: 18px;
-                    font-size: 16px;
-                }
-                
-                /* Mejorar teclado virtual */
-                input[type="tel"] {
-                    inputmode: tel;
-                }
-                
-                input[type="email"] {
-                    inputmode: email;
-                }
-            }
-
-            /* Mejorar botones para touch */
-            .btn, input[type="submit"] {
-                min-height: 44px; /* Tamaño mínimo para toques */
-                touch-action: manipulation;
-            }
-
-            /* Mejorar visibilidad en móviles */
-            input:focus {
-                border-width: 3px;
-            }
-
-            /* Asegurar que no haya zoom no deseado */
-            @media screen and (max-width: 480px) {
-                input, select, textarea {
-                    font-size: 16px !important;
-                }
-            }
         * {
             margin: 0;
             padding: 0;
@@ -136,32 +80,6 @@
         input:focus {
             outline: none;
             border-color: #4f46e5;
-        }
-
-        .social-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 10px;
-        }
-
-        .social-input {
-            display: flex;
-            align-items: center;
-        }
-
-        .social-input i {
-            background: #f3f4f6;
-            padding: 14px;
-            border-radius: 10px 0 0 10px;
-            color: #6b7280;
-            min-width: 50px;
-            text-align: center;
-        }
-
-        .social-input input {
-            border-radius: 0 10px 10px 0;
-            border-left: none;
         }
 
         .btn {
@@ -240,59 +158,80 @@
             text-align: center;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        /* Estilos para botones sociales */
+        .social-section {
+            margin-bottom: 25px;
         }
 
-        @media (max-width: 600px) {
-            .content {
-                padding: 25px;
-            }
-            
-            .social-grid {
-                grid-template-columns: 1fr;
-            }
-                }
-                .social-buttons {
+        .social-section h3 {
+            font-size: 16px;
+            color: #4b5563;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .social-buttons {
             display: flex;
             flex-direction: column;
             gap: 12px;
-            margin-top: 15px;
         }
 
         .social-btn {
             display: flex;
             align-items: center;
-            justify-content: center;
-            gap: 12px;
-            padding: 14px;
-            border: none;
+            justify-content: space-between;
+            padding: 14px 20px;
+            border: 2px solid #e5e7eb;
             border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
+            background: white;
             cursor: pointer;
             transition: all 0.3s;
-            color: white;
-            width: 100%;
-        }
-
-        .social-btn i {
-            font-size: 18px;
         }
 
         .social-btn:hover {
+            border-color: #4f46e5;
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
-        .fb-btn { background: #1877F2; }
-        .ig-btn { background: #E4405F; }
-        .tw-btn { background: #1DA1F2; }
-        .li-btn { background: #0077B5; }
-        .wa-btn { background: #25D366; }
+        .social-btn.connected {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
 
-        /* Modal para ingresar datos */
+        .social-btn.disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .social-btn-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .social-icon {
+            font-size: 20px;
+            width: 30px;
+            text-align: center;
+        }
+
+        .social-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .social-status {
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .social-btn.connected .social-status {
+            color: #10b981;
+        }
+
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -302,11 +241,12 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
         }
 
         .modal-content {
             background-color: white;
-            margin: 15% auto;
             padding: 30px;
             border-radius: 15px;
             width: 90%;
@@ -319,7 +259,7 @@
             color: #4f46e5;
         }
 
-        .modal input {
+        .modal-input {
             margin-bottom: 20px;
         }
 
@@ -328,13 +268,74 @@
             gap: 10px;
             justify-content: center;
         }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .modal-btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .modal-btn-secondary {
+            background: #e5e7eb;
+            color: #4b5563;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 600px) {
+            .content {
+                padding: 25px;
+            }
+            
+            .container {
+                border-radius: 15px;
+                margin: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 24px;
+            }
+            
+            input, .btn {
+                padding: 16px;
+                font-size: 16px;
+            }
+        }
+
+        /* Para evitar zoom en iOS */
+        @media screen and (max-width: 480px) {
+            input, select, textarea {
+                font-size: 16px !important;
+            }
+        }
+
+        /* Mejorar botones para touch */
+        .btn, .social-btn, .modal-btn {
+            min-height: 44px;
+            touch-action: manipulation;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
             <h1><i class="fas fa-wifi"></i> WiFi Gratis</h1>
-            <p>Complete sus datos para acceder a Internet</p>
+            <p>Complete sus datos para acceder a Internet y recibir apoyo laboral</p>
         </div>
 
         <div class="content">
@@ -348,71 +349,106 @@
 
                 <div class="form-group">
                     <label for="phone"><i class="fas fa-phone"></i> Teléfono / WhatsApp *</label>
-                    <input type="tel" id="phone" required placeholder="Ej: +51 987654321">
+                    <input type="tel" id="phone" required placeholder="Ej: +502 1234 5678" inputmode="tel">
                 </div>
 
                 <div class="form-group">
                     <label for="email"><i class="fas fa-envelope"></i> Correo Electrónico *</label>
-                    <input type="email" id="email" required placeholder="ejemplo@correo.com">
+                    <input type="email" id="email" required placeholder="ejemplo@correo.com" inputmode="email">
                 </div>
 
-               <!-- <div class="form-group">
-                    <label><i class="fas fa-share-alt"></i> Redes Sociales (Opcional)</label>
-                    <div class="social-grid">
-                        <div class="social-input">
-                            <i class="fab fa-facebook-f"></i>
-                            <input type="text" id="facebook" placeholder="Usuario Facebook">
-                        </div>
-                        <div class="social-input">
-                            <i class="fab fa-instagram"></i>
-                            <input type="text" id="instagram" placeholder="Usuario Instagram">
-                        </div>
-                        <div class="social-input">
-                            <i class="fab fa-twitter"></i>
-                            <input type="text" id="twitter" placeholder="@usuario">
-                        </div>
-                        <div class="social-input">
-                            <i class="fab fa-linkedin-in"></i>
-                            <input type="text" id="linkedin" placeholder="Perfil LinkedIn">
-                        </div>
+                <!-- Sección de redes sociales con botones -->
+                <div class="social-section">
+                    <h3><i class="fas fa-share-alt"></i> Conectar Redes Sociales (Opcional)</h3>
+                    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                        Conecta tus redes para recibir oportunidades laborales personalizadas
+                    </p>
+                    
+                    <div class="social-buttons">
+                        <button type="button" class="social-btn" id="facebookBtn" onclick="openSocialModal('facebook')">
+                            <div class="social-btn-left">
+                                <div class="social-icon" style="color: #1877F2;">
+                                    <i class="fab fa-facebook-f"></i>
+                                </div>
+                                <div>
+                                    <div class="social-name">Facebook</div>
+                                    <div class="social-status" id="facebookStatus">No conectado</div>
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="social-btn" id="instagramBtn" onclick="openSocialModal('instagram')">
+                            <div class="social-btn-left">
+                                <div class="social-icon" style="color: #E4405F;">
+                                    <i class="fab fa-instagram"></i>
+                                </div>
+                                <div>
+                                    <div class="social-name">Instagram</div>
+                                    <div class="social-status" id="instagramStatus">No conectado</div>
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="social-btn" id="twitterBtn" onclick="openSocialModal('twitter')">
+                            <div class="social-btn-left">
+                                <div class="social-icon" style="color: #1DA1F2;">
+                                    <i class="fab fa-twitter"></i>
+                                </div>
+                                <div>
+                                    <div class="social-name">Twitter/X</div>
+                                    <div class="social-status" id="twitterStatus">No conectado</div>
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="social-btn" id="linkedinBtn" onclick="openSocialModal('linkedin')">
+                            <div class="social-btn-left">
+                                <div class="social-icon" style="color: #0077B5;">
+                                    <i class="fab fa-linkedin-in"></i>
+                                </div>
+                                <div>
+                                    <div class="social-name">LinkedIn</div>
+                                    <div class="social-status" id="linkedinStatus">No conectado</div>
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </button>
+                        
+                        <button type="button" class="social-btn" id="whatsappBtn" onclick="openSocialModal('whatsapp')">
+                            <div class="social-btn-left">
+                                <div class="social-icon" style="color: #25D366;">
+                                    <i class="fab fa-whatsapp"></i>
+                                </div>
+                                <div>
+                                    <div class="social-name">WhatsApp</div>
+                                    <div class="social-status" id="whatsappStatus">No agregado</div>
+                                </div>
+                            </div>
+                            <div>
+                                <i class="fas fa-plus"></i>
+                            </div>
+                        </button>
                     </div>
-                </div>-->
-                <!--Sección de prueba para botones redes sociales-->
-                <div class="form-group">
-                <label><i class="fas fa-share-alt"></i> Conectar Redes Sociales (Opcional)</label>
-                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
-                    Conecta tus redes para recibir actualizaciones sobre oportunidades laborales
-                </p>
-                
-                <div class="social-buttons">
-                    <button type="button" class="social-btn fb-btn" onclick="connectSocial('facebook')">
-                        <i class="fab fa-facebook-f"></i> Conectar Facebook
-                    </button>
                     
-                    <button type="button" class="social-btn ig-btn" onclick="connectSocial('instagram')">
-                        <i class="fab fa-instagram"></i> Conectar Instagram
-                    </button>
-                    
-                    <button type="button" class="social-btn tw-btn" onclick="connectSocial('twitter')">
-                        <i class="fab fa-twitter"></i> Conectar Twitter/X
-                    </button>
-                    
-                    <button type="button" class="social-btn li-btn" onclick="connectSocial('linkedin')">
-                        <i class="fab fa-linkedin-in"></i> Conectar LinkedIn
-                    </button>
-                    
-                    <button type="button" class="social-btn wa-btn" onclick="connectSocial('whatsapp')">
-                        <i class="fab fa-whatsapp"></i> Agregar WhatsApp
-                    </button>
+                    <!-- Campos ocultos para almacenar los datos -->
+                    <input type="hidden" id="facebookProfile" name="facebookProfile">
+                    <input type="hidden" id="instagramProfile" name="instagramProfile">
+                    <input type="hidden" id="twitterProfile" name="twitterProfile">
+                    <input type="hidden" id="linkedinProfile" name="linkedinProfile">
+                    <input type="hidden" id="whatsappNumber" name="whatsappNumber">
                 </div>
                 
-                <!-- Campos ocultos para almacenar los datos -->
-                <input type="hidden" id="facebookProfile" name="facebookProfile">
-                <input type="hidden" id="instagramProfile" name="instagramProfile">
-                <input type="hidden" id="twitterProfile" name="twitterProfile">
-                <input type="hidden" id="linkedinProfile" name="linkedinProfile">
-                <input type="hidden" id="whatsappNumber" name="whatsappNumber">
-            </div>
                 <div class="loader" id="loader"></div>
                 
                 <button type="submit" class="btn" id="submitBtn">
@@ -428,37 +464,181 @@
 
             <div class="success-message" id="successMessage">
                 <i class="fas fa-check-circle"></i>
-                <h2>¡Conexión Exitosa!</h2>
-                <p>Ya tienes acceso a Internet</p>
-                <p><strong>Código de acceso:</strong> <span id="accessCode" style="font-size: 24px; color: #4f46e5;"></span></p>
+                <h2>¡Registro Exitoso!</h2>
+                <p style="margin: 15px 0;">Ya tienes acceso a Internet</p>
+                <p><strong>Código de acceso:</strong></p>
+                <p id="accessCode" style="font-size: 28px; color: #4f46e5; font-weight: bold; margin: 10px 0;"></p>
                 <p class="countdown">Redirigiendo en <span id="countdown">5</span> segundos...</p>
-                <p style="font-size: 14px; margin-top: 20px;">
-                    Este código será válido por 24 horas
+                <p style="font-size: 14px; margin-top: 20px; color: #666;">
+                    Este código será válido por 24 horas<br>
+                    Te contactaremos pronto con oportunidades laborales
                 </p>
             </div>
         </div>
     </div>
 
+    <!-- Modal para ingresar perfiles sociales -->
+    <div class="modal" id="socialModal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Conectar Red Social</h3>
+            <div class="modal-input">
+                <input type="text" id="socialInput" class="full-width" placeholder="">
+                <p id="modalPlaceholder" style="font-size: 12px; color: #666; margin-top: 8px;"></p>
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn modal-btn-primary" onclick="saveSocialProfile()">Guardar</button>
+                <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // URL de la API - Cambia esto según tu despliegue
+        // Configuración
         const API_URL = 'https://portal-wifi-captive.onrender.com/api';
-        // Para desarrollo local: 'http://localhost:3001/api'
-        
-        // Generar ID de sesión único
         const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
         
-        // Configurar API URL automáticamente en producción
-        function getApiUrl() {
-            // Si estamos en el frontend de Render
-            if (window.location.hostname.includes('render.com')) {
-                return 'https://portal-wifi-captive.onrender.com/api';
+        // Estado de la aplicación
+        let currentSocialNetwork = '';
+        const socialData = {
+            facebookProfile: '',
+            instagramProfile: '',
+            twitterProfile: '',
+            linkedinProfile: '',
+            whatsappNumber: ''
+        };
+        
+        // Modal functions
+        function openSocialModal(network) {
+            currentSocialNetwork = network;
+            
+            const config = {
+                'facebook': {
+                    title: 'Conectar Facebook',
+                    placeholder: 'Ingresa tu perfil de Facebook',
+                    example: 'Ej: nombre.usuario o facebook.com/nombre.usuario'
+                },
+                'instagram': {
+                    title: 'Conectar Instagram',
+                    placeholder: 'Ingresa tu usuario de Instagram',
+                    example: 'Ej: @usuario'
+                },
+                'twitter': {
+                    title: 'Conectar Twitter/X',
+                    placeholder: 'Ingresa tu usuario de Twitter/X',
+                    example: 'Ej: @usuario'
+                },
+                'linkedin': {
+                    title: 'Conectar LinkedIn',
+                    placeholder: 'Ingresa tu perfil de LinkedIn',
+                    example: 'Ej: linkedin.com/in/usuario'
+                },
+                'whatsapp': {
+                    title: 'Agregar WhatsApp',
+                    placeholder: 'Ingresa tu número de WhatsApp',
+                    example: 'Ej: +502 1234 5678'
+                }
+            };
+            
+            const modal = document.getElementById('socialModal');
+            const title = document.getElementById('modalTitle');
+            const input = document.getElementById('socialInput');
+            const placeholder = document.getElementById('modalPlaceholder');
+            
+            title.textContent = config[network].title;
+            input.placeholder = config[network].placeholder;
+            placeholder.textContent = config[network].example;
+            input.value = socialData[currentSocialNetwork + (network === 'whatsapp' ? 'Number' : 'Profile')] || '';
+            
+            modal.style.display = 'flex';
+            input.focus();
+        }
+        
+        function saveSocialProfile() {
+            const input = document.getElementById('socialInput');
+            const value = input.value.trim();
+            
+            if (value) {
+                const fieldName = currentSocialNetwork + (currentSocialNetwork === 'whatsapp' ? 'Number' : 'Profile');
+                
+                // Guardar en el objeto de datos
+                socialData[fieldName] = value;
+                
+                // Guardar en el campo oculto
+                document.getElementById(fieldName).value = value;
+                
+                // Actualizar la UI del botón
+                const button = document.getElementById(`${currentSocialNetwork}Btn`);
+                const statusElement = document.getElementById(`${currentSocialNetwork}Status`);
+                
+                button.classList.add('connected');
+                statusElement.textContent = currentSocialNetwork === 'whatsapp' ? 'Agregado' : 'Conectado';
+                statusElement.style.color = '#10b981';
+                
+                // Cambiar ícono
+                const icon = button.querySelector('.fa-plus');
+                if (icon) {
+                    icon.className = 'fas fa-check';
+                    icon.style.color = '#10b981';
+                }
+                
+                // Mostrar mensaje temporal
+                showToast(`${currentSocialNetwork.charAt(0).toUpperCase() + currentSocialNetwork.slice(1)} conectado exitosamente`);
             }
             
-            // Por defecto - usa la URL CORRECTA
-            return 'https://portal-wifi-captive.onrender.com/api';
-            
+            closeModal();
         }
-
+        
+        function closeModal() {
+            document.getElementById('socialModal').style.display = 'none';
+        }
+        
+        // Toast notification
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: #10b981;
+                color: white;
+                padding: 12px 20px;
+                border-radius: 8px;
+                z-index: 10000;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Validar email
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+        
+        // Validar teléfono
+        function validatePhone(phone) {
+            const cleaned = phone.replace(/\D/g, '');
+            return cleaned.length >= 8;
+        }
+        
+        // Mostrar error
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+            
+            // Scroll to error
+            errorMessage.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Form submission
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -468,14 +648,15 @@
             const successMessage = document.getElementById('successMessage');
             const errorMessage = document.getElementById('errorMessage');
             
-            // Resetear mensajes de error
+            // Resetear mensajes
             errorMessage.style.display = 'none';
             
-            // Validaciones básicas
+            // Obtener valores
             const fullName = document.getElementById('fullName').value.trim();
             const phone = document.getElementById('phone').value.trim();
             const email = document.getElementById('email').value.trim();
             
+            // Validaciones
             if (!fullName || !phone || !email) {
                 showError('Por favor complete todos los campos requeridos');
                 return;
@@ -485,118 +666,62 @@
                 showError('Por favor ingrese un email válido');
                 return;
             }
-
-            let currentSocialNetwork = '';
-
-            function connectSocial(network) {
-                currentSocialNetwork = network;
-                
-                const modal = document.getElementById('socialModal');
-                const title = document.getElementById('modalTitle');
-                const input = document.getElementById('socialInput');
-                const placeholder = document.getElementById('modalPlaceholder');
-                
-                // Configurar según la red social
-                const config = {
-                    'facebook': {
-                        title: 'Conectar Facebook',
-                        placeholder: 'Ingresa tu perfil de Facebook (ej: nombre.usuario)',
-                        example: 'Ej: maria.gonzalez o facebook.com/maria.gonzalez'
-                    },
-                    'instagram': {
-                        title: 'Conectar Instagram',
-                        placeholder: 'Ingresa tu usuario de Instagram',
-                        example: 'Ej: @mariagonzalez'
-                    },
-                    'twitter': {
-                        title: 'Conectar Twitter/X',
-                        placeholder: 'Ingresa tu usuario de Twitter/X',
-                        example: 'Ej: @MariaGonzalez'
-                    },
-                    'linkedin': {
-                        title: 'Conectar LinkedIn',
-                        placeholder: 'Ingresa tu perfil de LinkedIn',
-                        example: 'Ej: linkedin.com/in/maria-gonzalez'
-                    },
-                    'whatsapp': {
-                        title: 'Agregar WhatsApp',
-                        placeholder: 'Ingresa tu número de WhatsApp',
-                        example: 'Ej: +502 1234 5678'
-                    }
-                };
-                
-                title.textContent = config[network].title;
-                input.placeholder = config[network].placeholder;
-                placeholder.textContent = config[network].example;
-                input.value = '';
-                
-                modal.style.display = 'block';
-            }
-
-            function saveSocialProfile() {
-                const input = document.getElementById('socialInput');
-                const value = input.value.trim();
-                
-                if (value) {
-                    // Guardar en el campo oculto correspondiente
-                    document.getElementById(`${currentSocialNetwork}Profile`).value = value;
-                    
-                    // Mostrar confirmación
-                    const button = document.querySelector(`.${currentSocialNetwork}-btn`);
-                    const originalText = button.innerHTML;
-                    button.innerHTML = `<i class="fas fa-check"></i> Conectado`;
-                    button.style.opacity = '0.8';
-                    
-                    setTimeout(() => {
-                        button.innerHTML = originalText;
-                        button.style.opacity = '1';
-                    }, 2000);
-                }
-                
-                closeModal();
-            }
-
-            function closeModal() {
-                document.getElementById('socialModal').style.display = 'none';
+            
+            if (!validatePhone(phone)) {
+                showError('Por favor ingrese un número de teléfono válido');
+                return;
             }
             
-            // Mostrar loader
+            // Deshabilitar botón y mostrar loader
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
             loader.style.display = 'block';
             
+            // Preparar datos para enviar
             const userData = {
                 fullName: fullName,
                 phone: phone,
                 email: email,
-                facebook: document.getElementById('facebook').value.trim(),
-                instagram: document.getElementById('instagram').value.trim(),
-                twitter: document.getElementById('twitter').value.trim(),
-                linkedin: document.getElementById('linkedin').value.trim()
+                facebookProfile: socialData.facebookProfile,
+                instagramProfile: socialData.instagramProfile,
+                twitterProfile: socialData.twitterProfile,
+                linkedinProfile: socialData.linkedinProfile,
+                whatsappNumber: socialData.whatsappNumber,
+                migrationStatus: 'retornado',
+                employmentInterest: ['construccion', 'servicios', 'agricultura'],
+                contactPreference: socialData.whatsappNumber ? ['whatsapp', 'llamada'] : ['llamada', 'email']
             };
             
             try {
-                const currentApiUrl = getApiUrl();
-                console.log('Enviando datos a:', currentApiUrl);
+                console.log('Enviando datos:', userData);
+                console.log('URL de API:', API_URL + '/register');
                 
-                const response = await fetch(`${currentApiUrl}/register`, {
+                const response = await fetch(API_URL + '/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Session-Id': sessionId,
-                        'Wifi-Network': 'WiFi-Gratis'
+                        'Wifi-Network': 'WiFi-Gratis - Apoyo Migrantes'
                     },
                     body: JSON.stringify(userData)
                 });
                 
                 const result = await response.json();
+                console.log('Respuesta del servidor:', result);
                 
                 if (result.success) {
                     // Ocultar formulario y mostrar éxito
                     form.style.display = 'none';
                     loader.style.display = 'none';
+                    
+                    // Mostrar código de acceso
                     document.getElementById('accessCode').textContent = result.data.accessCode;
                     successMessage.style.display = 'block';
+                    
+                    // Guardar en localStorage
+                    localStorage.setItem('wifiAccessCode', result.data.accessCode);
+                    localStorage.setItem('wifiUserEmail', email);
+                    localStorage.setItem('wifiUserName', fullName);
                     
                     // Iniciar cuenta regresiva
                     let countdown = result.countdown || 5;
@@ -608,32 +733,21 @@
                         
                         if (countdown <= 0) {
                             clearInterval(countdownInterval);
-                            // Redirigir a Google o URL configurada
+                            // Redirigir
                             window.location.href = result.redirectUrl || 'https://www.google.com';
                         }
                     }, 1000);
                     
-                    // Opcional: Guardar en localStorage
-                    localStorage.setItem('wifiAccessCode', result.data.accessCode);
-                    localStorage.setItem('wifiUserEmail', email);
-                    
                 } else {
-                    showError(result.error || 'Error en el registro. Intente nuevamente.');
+                    showError(result.error || 'Error en el registro. Por favor intente nuevamente.');
                     resetForm();
                 }
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error en la solicitud:', error);
                 showError('Error de conexión. Verifique su conexión a Internet e intente nuevamente.');
                 resetForm();
             }
         });
-        
-        function showError(message) {
-            const errorMessage = document.getElementById('errorMessage');
-            errorMessage.textContent = message;
-            errorMessage.style.display = 'block';
-            resetForm();
-        }
         
         function resetForm() {
             const submitBtn = document.getElementById('submitBtn');
@@ -644,43 +758,54 @@
             loader.style.display = 'none';
         }
         
-        function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
-        }
-        
+        // Términos y privacidad
         function showTerms() {
-            alert('Términos de Servicio:\n\n1. El WiFi es gratuito por 24 horas.\n2. No se permite contenido ilegal.\n3. Su información será protegida según nuestra política de privacidad.\n4. El servicio puede ser interrumpido por mantenimiento.');
+            alert('TÉRMINOS DE SERVICIO\n\n1. El servicio WiFi es gratuito por 24 horas.\n2. Usted acepta usar el servicio de manera responsable.\n3. Nos comprometemos a proteger su información personal.\n4. El servicio puede interrumpirse por mantenimiento.\n5. Al registrarse, acepta recibir información sobre oportunidades laborales.');
         }
         
         function showPrivacy() {
-            alert('Política de Privacidad:\n\n1. Solo recolectamos información necesaria para el acceso.\n2. No compartimos sus datos con terceros.\n3. Puede solicitar la eliminación de sus datos.\n4. Usamos cookies para mejorar la experiencia.');
+            alert('POLÍTICA DE PRIVACIDAD\n\n1. Recopilamos información para brindar el servicio WiFi y apoyo laboral.\n2. Su información será usada solo para los fines establecidos.\n3. No compartimos datos personales con terceros sin consentimiento.\n4. Puede solicitar la eliminación de sus datos contactándonos.\n5. Implementamos medidas de seguridad para proteger su información.');
         }
         
         // Detectar si ya tiene acceso guardado
         window.addEventListener('load', () => {
             const savedCode = localStorage.getItem('wifiAccessCode');
             if (savedCode) {
-                const useSaved = confirm(`Ya tienes un código de acceso guardado: ${savedCode}\n¿Deseas usarlo?`);
+                const userName = localStorage.getItem('wifiUserName') || 'Usuario';
+                const useSaved = confirm(`Hola ${userName}, ya tienes un código de acceso guardado: ${savedCode}\n\n¿Deseas usarlo para conectarte ahora?`);
+                
                 if (useSaved) {
                     window.location.href = 'https://www.google.com';
                 } else {
+                    // Limpiar localStorage si no quiere usar el código guardado
                     localStorage.removeItem('wifiAccessCode');
+                    localStorage.removeItem('wifiUserEmail');
+                    localStorage.removeItem('wifiUserName');
                 }
             }
+            
+            // Cerrar modal si se hace clic fuera
+            document.getElementById('socialModal').addEventListener('click', (e) => {
+                if (e.target.id === 'socialModal') {
+                    closeModal();
+                }
+            });
         });
+        
+        // Estilos CSS para animaciones del toast
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
     </script>
-    <!-- Modal para redes sociales -->
-<div id="socialModal" class="modal">
-    <div class="modal-content">
-        <h3 id="modalTitle">Conectar Red Social</h3>
-        <input type="text" id="socialInput" placeholder="" class="full-width">
-        <p id="modalPlaceholder" style="font-size: 12px; color: #666; margin-top: -10px; margin-bottom: 20px;"></p>
-        <div class="modal-buttons">
-            <button onclick="saveSocialProfile()" class="btn" style="flex: 1;">Guardar</button>
-            <button onclick="closeModal()" class="btn" style="flex: 1; background: #6b7280;">Cancelar</button>
-        </div>
-    </div>
-</div>
 </body>
 </html>

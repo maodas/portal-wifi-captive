@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 3001;
 
 // Configuración de seguridad
 app.use(helmet({
-  contentSecurityPolicy: false, // Simplificado para desarrollo
+  contentSecurityPolicy: false,
 }));
 
 // Rate limiting
@@ -33,7 +33,7 @@ app.use(cors({
     
     const allowedOrigins = process.env.ALLOWED_ORIGINS ? 
       process.env.ALLOWED_ORIGINS.split(',') : 
-      ['http://localhost:3000', 'http://localhost:3001'];
+      ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5500', 'http://127.0.0.1:5500'];
     
     if (allowedOrigins.indexOf(origin) !== -1 || allowedOrigins.includes('*')) {
       callback(null, true);
@@ -48,18 +48,6 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Logging de CORS para debug
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    console.log('CORS Preflight:', {
-      origin: req.headers.origin,
-      method: req.headers['access-control-request-method'],
-      headers: req.headers['access-control-request-headers']
-    });
-  }
-  next();
-});
 
 // Servir archivos estáticos del panel admin
 app.use('/admin', express.static(path.join(__dirname, '.')));
@@ -92,11 +80,11 @@ const userSchema = new mongoose.Schema({
     match: [/^\S+@\S+\.\S+$/, 'Por favor ingrese un email válido']
   },
   
-  // Redes sociales (conexión mejorada)
-  facebook: { type: String, trim: true, default: '' },
-  instagram: { type: String, trim: true, default: '' },
-  twitter: { type: String, trim: true, default: '' },
-  linkedin: { type: String, trim: true, default: '' },
+  // Redes sociales (campos actualizados para flujo automático)
+  facebookProfile: { type: String, trim: true, default: '' },
+  instagramProfile: { type: String, trim: true, default: '' },
+  twitterProfile: { type: String, trim: true, default: '' },
+  linkedinProfile: { type: String, trim: true, default: '' },
   whatsappNumber: { type: String, trim: true, default: '' },
   
   // Información técnica
@@ -114,8 +102,7 @@ const userSchema = new mongoose.Schema({
   },
   lastAccess: { type: Date, default: Date.now },
   
-  // ========== NUEVOS CAMPOS PARA SEGUIMIENTO ==========
-  // Información para reintegración laboral
+  // Campos para reintegración laboral
   migrationStatus: {
     type: String,
     enum: ['retornado', 'en_transito', 'establecido', 'busca_empleo', 'empleado', 'no_aplica'],
@@ -249,13 +236,11 @@ function generateAccessCode() {
 }
 
 function validateGuatemalanPhone(phone) {
-  // Validación básica para números guatemaltecos
   const cleaned = phone.replace(/\D/g, '');
   return cleaned.length >= 8 && cleaned.length <= 12;
 }
 
 function extractSocialProfile(url, platform) {
-  // Extraer nombre de usuario de URL de red social
   if (!url) return '';
   
   const patterns = {
@@ -280,7 +265,16 @@ app.get('/api/health', (req, res) => {
     database: dbStatus,
     memoryStore: memoryStore.length,
     service: 'Portal WiFi - Apoyo Migrantes Retornados',
-    version: '2.0.0'
+    version: '2.1.0'
+  });
+});
+
+// Ruta para verificar conexión simple
+app.get('/api/test', (req, res) => {
+  res.json({
+    success: true,
+    message: '✅ API funcionando correctamente',
+    timestamp: new Date().toISOString()
   });
 });
 
@@ -288,7 +282,7 @@ app.get('/api/health', (req, res) => {
 app.get('/', (req, res) => {
   res.json({
     message: '🚀 API Portal WiFi Cautivo - Apoyo a Migrantes Retornados',
-    version: '2.0.0',
+    version: '2.1.0',
     status: 'operational',
     endpoints: {
       api: '/api',
@@ -298,7 +292,8 @@ app.get('/', (req, res) => {
       export: '/api/export/csv (GET)',
       contact: '/api/contact/:userId (POST)',
       contactable: '/api/users/contactable (GET)',
-      admin: '/admin'
+      admin: '/admin',
+      test: '/api/test (GET)'
     },
     documentation: 'Visita /admin para el panel de administración',
     health: '/api/health'
@@ -309,7 +304,7 @@ app.get('/', (req, res) => {
 app.get('/api/', (req, res) => {
   res.json({
     message: 'API Portal WiFi Cautivo - Apoyo a Migrantes Retornados Guatemala',
-    version: '2.0.0',
+    version: '2.1.0',
     endpoints: {
       register: 'POST /api/register',
       users: 'GET /api/users',
@@ -328,16 +323,17 @@ app.get('/api/', (req, res) => {
 // ========== REGISTRO MEJORADO ==========
 app.post('/api/register', async (req, res) => {
   try {
+    console.log('📥 Recibiendo registro:', req.body);
+    
     const { 
       fullName, 
       phone, 
       email, 
-      facebook, 
-      instagram, 
-      twitter, 
-      linkedin,
+      facebookProfile, 
+      instagramProfile, 
+      twitterProfile, 
+      linkedinProfile,
       whatsappNumber,
-      // Nuevos campos para reintegración
       migrationStatus,
       employmentInterest,
       skills,
@@ -366,21 +362,15 @@ app.post('/api/register', async (req, res) => {
     const sessionId = req.headers['session-id'] || `sess_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const accessCode = generateAccessCode();
     
-    // Procesar perfiles de redes sociales
-    const processedFacebook = extractSocialProfile(facebook, 'facebook');
-    const processedInstagram = extractSocialProfile(instagram, 'instagram');
-    const processedTwitter = extractSocialProfile(twitter, 'twitter');
-    const processedLinkedin = extractSocialProfile(linkedin, 'linkedin');
-    
     const userData = {
       fullName: fullName.trim(),
       phone: phone.trim(),
       email: email.trim().toLowerCase(),
-      facebook: processedFacebook,
-      instagram: processedInstagram,
-      twitter: processedTwitter,
-      linkedin: processedLinkedin,
-      whatsappNumber: whatsappNumber ? whatsappNumber.trim() : '',
+      facebookProfile: facebookProfile || '',
+      instagramProfile: instagramProfile || '',
+      twitterProfile: twitterProfile || '',
+      linkedinProfile: linkedinProfile || '',
+      whatsappNumber: whatsappNumber || '',
       ipAddress: req.ip || req.connection.remoteAddress,
       deviceInfo: JSON.stringify({
         userAgent: req.headers['user-agent'] || '',
@@ -398,16 +388,11 @@ app.post('/api/register', async (req, res) => {
       skills: skills ? (Array.isArray(skills) ? skills : [skills]) : [],
       needsSupport: needsSupport || 'empleo',
       contactPreference: contactPreference || ['whatsapp', 'llamada'],
-      location: location || {},
-      familyMembers: familyMembers || 0,
-      
-      // Información por defecto para Guatemala
-      ...(location ? {} : {
-        location: {
-          department: 'Guatemala',
-          municipality: 'Ciudad de Guatemala'
-        }
-      })
+      location: location || {
+        department: 'Guatemala',
+        municipality: 'Ciudad de Guatemala'
+      },
+      familyMembers: familyMembers || 0
     };
     
     let savedUser;
@@ -450,6 +435,7 @@ app.post('/api/register', async (req, res) => {
       countdown: 5
     };
     
+    console.log('📤 Enviando respuesta:', response);
     res.status(201).json(response);
     
   } catch (error) {
@@ -457,7 +443,7 @@ app.post('/api/register', async (req, res) => {
     res.status(500).json({ 
       success: false, 
       error: 'Error interno del servidor',
-      suggestion: 'Por favor intente nuevamente o contacte al administrador'
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
@@ -590,7 +576,7 @@ app.get('/api/users/contactable', async (req, res) => {
       
       users = await User.find(query)
         .sort({ lastContactAttempt: 1, createdAt: -1 })
-        .select('fullName phone email contactPreference facebook instagram whatsappNumber migrationStatus employmentInterest lastContactAttempt contactAttempts location');
+        .select('fullName phone email contactPreference facebookProfile instagramProfile whatsappNumber migrationStatus employmentInterest lastContactAttempt contactAttempts location');
     } else {
       users = memoryStore.filter(u => 
         (u.phone || u.email || (u.contactPreference && u.contactPreference.length > 0)) &&
@@ -600,8 +586,8 @@ app.get('/api/users/contactable', async (req, res) => {
         phone: u.phone,
         email: u.email,
         contactPreference: u.contactPreference || [],
-        facebook: u.facebook,
-        instagram: u.instagram,
+        facebookProfile: u.facebookProfile,
+        instagramProfile: u.instagramProfile,
         whatsappNumber: u.whatsappNumber,
         migrationStatus: u.migrationStatus,
         employmentInterest: u.employmentInterest,
@@ -639,7 +625,6 @@ app.post('/api/contact/:userId', async (req, res) => {
     const { channel, message, agent, template } = req.body;
     const { userId } = req.params;
     
-    // Validar canal
     const validChannels = ['whatsapp', 'facebook', 'instagram', 'email', 'llamada', 'sms'];
     if (!validChannels.includes(channel)) {
       return res.status(400).json({
@@ -663,19 +648,17 @@ app.post('/api/contact/:userId', async (req, res) => {
       });
     }
     
-    // Plantillas de mensaje para Guatemala
     const templates = {
       welcome: `Hola ${user.fullName}, te damos la bienvenida de regreso a Guatemala. Somos del programa de apoyo a migrantes retornados. ¿En qué podemos ayudarte?`,
-      job_opportunity: `Hola ${user.fullName}, tenemos oportunidades laborales que podrían interesarte en ${user.employmentInterest ? user.employmentInterest.join(', ') : 'diferentes sectores'}. ¿Te gustaría saber más?`,
+      job_opportunity: `Hola ${user.fullName}, tenemos oportunidades laborales que podrían interesarte. ¿Te gustaría saber más?`,
       follow_up: `Hola ${user.fullName}, te contactamos para seguir tu proceso de reintegración. ¿Cómo te ha ido en la búsqueda de empleo?`,
-      support: `Hola ${user.fullName}, sabemos que el retorno puede ser difícil. Ofrecemos apoyo en ${user.needsSupport || 'empleo y documentación'}. ¿Necesitas asistencia?`
+      support: `Hola ${user.fullName}, sabemos que el retorno puede ser difícil. Ofrecemos apoyo en empleo y documentación. ¿Necesitas asistencia?`
     };
     
     const finalMessage = template && templates[template] 
       ? templates[template].replace('[nombre]', user.fullName)
       : message || templates.welcome;
     
-    // Registro de contacto
     const contactRecord = {
       date: new Date(),
       channel,
@@ -692,17 +675,11 @@ app.post('/api/contact/:userId', async (req, res) => {
         $inc: { contactAttempts: 1 }
       });
     } else {
-      // Manejo en memoria
       user.communicationHistory = user.communicationHistory || [];
       user.communicationHistory.push(contactRecord);
       user.lastContactAttempt = new Date();
       user.contactAttempts = (user.contactAttempts || 0) + 1;
     }
-    
-    // Aquí se integraría con APIs reales:
-    // - Twilio para WhatsApp/SMS
-    // - Facebook Graph API para Messenger
-    // - nodemailer para email
     
     res.json({
       success: true,
@@ -739,20 +716,18 @@ app.get('/api/stats', async (req, res) => {
       
       const withSocial = await User.countDocuments({
         $or: [
-          { facebook: { $ne: '' } },
-          { instagram: { $ne: '' } },
-          { twitter: { $ne: '' } },
-          { linkedin: { $ne: '' } },
+          { facebookProfile: { $ne: '' } },
+          { instagramProfile: { $ne: '' } },
+          { twitterProfile: { $ne: '' } },
+          { linkedinProfile: { $ne: '' } },
           { whatsappNumber: { $ne: '' } }
         ]
       });
       
-      // Estadísticas por estado migratorio
       const migrationStats = await User.aggregate([
         { $group: { _id: '$migrationStatus', count: { $sum: 1 } } }
       ]);
       
-      // Estadísticas por departamento
       const locationStats = await User.aggregate([
         { $match: { 'location.department': { $exists: true, $ne: '' } } },
         { $group: { _id: '$location.department', count: { $sum: 1 } } },
@@ -760,7 +735,6 @@ app.get('/api/stats', async (req, res) => {
         { $limit: 10 }
       ]);
       
-      // Contactos exitosos
       const contactedUsers = await User.countDocuments({ contactAttempts: { $gt: 0 } });
       const successfulContacts = await User.countDocuments({ contactSuccess: true });
       
@@ -786,10 +760,9 @@ app.get('/api/stats', async (req, res) => {
       ).length;
       
       const withSocial = memoryStore.filter(u => 
-        u.facebook || u.instagram || u.twitter || u.linkedin || u.whatsappNumber
+        u.facebookProfile || u.instagramProfile || u.twitterProfile || u.linkedinProfile || u.whatsappNumber
       ).length;
       
-      // Estadísticas básicas en memoria
       const migrationStats = {};
       memoryStore.forEach(u => {
         const status = u.migrationStatus || 'retornado';
@@ -833,7 +806,6 @@ app.get('/api/export/csv', async (req, res) => {
       users = memoryStore;
     }
     
-    // Cabeceras mejoradas
     const headers = [
       'ID', 'Nombre Completo', 'Teléfono', 'Email', 
       'Facebook', 'Instagram', 'Twitter', 'LinkedIn', 'WhatsApp',
@@ -849,10 +821,10 @@ app.get('/api/export/csv', async (req, res) => {
       `"${user.fullName}"`,
       `"${user.phone}"`,
       `"${user.email}"`,
-      `"${user.facebook || ''}"`,
-      `"${user.instagram || ''}"`,
-      `"${user.twitter || ''}"`,
-      `"${user.linkedin || ''}"`,
+      `"${user.facebookProfile || ''}"`,
+      `"${user.instagramProfile || ''}"`,
+      `"${user.twitterProfile || ''}"`,
+      `"${user.linkedinProfile || ''}"`,
       `"${user.whatsappNumber || ''}"`,
       `"${user.migrationStatus || 'retornado'}"`,
       `"${(user.employmentInterest || []).join(', ')}"`,
@@ -876,7 +848,7 @@ app.get('/api/export/csv', async (req, res) => {
     
     res.header('Content-Type', 'text/csv; charset=utf-8');
     res.header('Content-Disposition', `attachment; filename="${filename}"`);
-    res.send('\ufeff' + csv); // BOM para Excel
+    res.send('\ufeff' + csv);
     
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -898,7 +870,7 @@ app.get('/api/export/contacts', async (req, res) => {
       
       users = await User.find(query)
         .sort({ migrationStatus: 1, createdAt: -1 })
-        .select('fullName phone email whatsappNumber facebook instagram migrationStatus employmentInterest contactPreference');
+        .select('fullName phone email whatsappNumber facebookProfile instagramProfile migrationStatus employmentInterest contactPreference');
     } else {
       users = memoryStore
         .filter(u => u.status === 'active')
@@ -908,8 +880,8 @@ app.get('/api/export/contacts', async (req, res) => {
           phone: u.phone,
           email: u.email,
           whatsappNumber: u.whatsappNumber,
-          facebook: u.facebook,
-          instagram: u.instagram,
+          facebookProfile: u.facebookProfile,
+          instagramProfile: u.instagramProfile,
           migrationStatus: u.migrationStatus,
           employmentInterest: u.employmentInterest,
           contactPreference: u.contactPreference
@@ -923,8 +895,8 @@ app.get('/api/export/contacts', async (req, res) => {
       `"${user.phone}"`,
       `"${user.whatsappNumber || ''}"`,
       `"${user.email}"`,
-      `"${user.facebook || ''}"`,
-      `"${user.instagram || ''}"`,
+      `"${user.facebookProfile || ''}"`,
+      `"${user.instagramProfile || ''}"`,
       `"${user.migrationStatus}"`,
       `"${(user.employmentInterest || []).join(', ')}"`,
       `"${(user.contactPreference || []).join(', ')}"`
@@ -993,14 +965,6 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
-// Ruta para dashboard de estadísticas
-app.get('/admin/stats', (req, res) => {
-  res.json({
-    message: 'Dashboard de estadísticas - Panel de administración',
-    available: true
-  });
-});
-
 // ========== MANEJO DE ERRORES ==========
 app.use((req, res) => {
   res.status(404).json({
@@ -1020,6 +984,7 @@ app.use((req, res) => {
       contact: 'POST /api/contact/:userId',
       updateUser: 'PUT /api/user/:id',
       health: 'GET /api/health',
+      test: 'GET /api/test',
       admin: 'GET /admin'
     }
   });
@@ -1031,7 +996,7 @@ app.use((err, req, res, next) => {
     success: false,
     error: 'Error interno del servidor',
     message: process.env.NODE_ENV === 'development' ? err.message : undefined,
-    support: 'contacto@apoyomigrantesgt.org'
+    support: process.env.SUPPORT_EMAIL || 'contacto@apoyomigrantesgt.org'
   });
 });
 
