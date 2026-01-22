@@ -282,7 +282,7 @@
                     <input type="email" id="email" required placeholder="ejemplo@correo.com">
                 </div>
 
-                <div class="form-group">
+               <!-- <div class="form-group">
                     <label><i class="fas fa-share-alt"></i> Redes Sociales (Opcional)</label>
                     <div class="social-grid">
                         <div class="social-input">
@@ -302,8 +302,43 @@
                             <input type="text" id="linkedin" placeholder="Perfil LinkedIn">
                         </div>
                     </div>
+                </div>-->
+                <!--Sección de prueba para botones redes sociales-->
+                <div class="form-group">
+                <label><i class="fas fa-share-alt"></i> Conectar Redes Sociales (Opcional)</label>
+                <p style="font-size: 14px; color: #666; margin-bottom: 15px;">
+                    Conecta tus redes para recibir actualizaciones sobre oportunidades laborales
+                </p>
+                
+                <div class="social-buttons">
+                    <button type="button" class="social-btn fb-btn" onclick="connectSocial('facebook')">
+                        <i class="fab fa-facebook-f"></i> Conectar Facebook
+                    </button>
+                    
+                    <button type="button" class="social-btn ig-btn" onclick="connectSocial('instagram')">
+                        <i class="fab fa-instagram"></i> Conectar Instagram
+                    </button>
+                    
+                    <button type="button" class="social-btn tw-btn" onclick="connectSocial('twitter')">
+                        <i class="fab fa-twitter"></i> Conectar Twitter/X
+                    </button>
+                    
+                    <button type="button" class="social-btn li-btn" onclick="connectSocial('linkedin')">
+                        <i class="fab fa-linkedin-in"></i> Conectar LinkedIn
+                    </button>
+                    
+                    <button type="button" class="social-btn wa-btn" onclick="connectSocial('whatsapp')">
+                        <i class="fab fa-whatsapp"></i> Agregar WhatsApp
+                    </button>
                 </div>
-
+                
+                <!-- Campos ocultos para almacenar los datos -->
+                <input type="hidden" id="facebookProfile" name="facebookProfile">
+                <input type="hidden" id="instagramProfile" name="instagramProfile">
+                <input type="hidden" id="twitterProfile" name="twitterProfile">
+                <input type="hidden" id="linkedinProfile" name="linkedinProfile">
+                <input type="hidden" id="whatsappNumber" name="whatsappNumber">
+            </div>
                 <div class="loader" id="loader"></div>
                 
                 <button type="submit" class="btn" id="submitBtn">
