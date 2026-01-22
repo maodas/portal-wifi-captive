@@ -284,19 +284,14 @@
         
         // Configurar API URL automáticamente en producción
         function getApiUrl() {
-            // Si estamos en localhost, usar local
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                return 'http://localhost:3001/api';
-            }
-            // Si la página ya está en Render, usar el backend de Render
+            // Si estamos en el frontend de Render
             if (window.location.hostname.includes('render.com')) {
-                // Extraer nombre del servicio frontend y construir URL del backend
-                const hostname = window.location.hostname;
-                const serviceName = hostname.split('-')[0] + '-' + hostname.split('-')[1];
-                return `https://${serviceName}-backend.onrender.com/api`;
+                return 'https://portal-wifi-captive.onrender.com/api';
             }
-            // Por defecto, usar la URL configurada
-            return API_URL;
+            
+            // Por defecto - usa la URL CORRECTA
+            return 'https://portal-wifi-captive.onrender.com/api';
+            
         }
 
         document.getElementById('registrationForm').addEventListener('submit', async (e) => {

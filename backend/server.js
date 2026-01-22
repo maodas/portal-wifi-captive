@@ -41,6 +41,17 @@ app.use(cors({
   },
   credentials: true
 }));
+
+app.use((req, res, next) => {
+  console.log('CORS Headers:', {
+    origin: req.headers.origin,
+    method: req.method,
+    url: req.url,
+    'access-control-request-headers': req.headers['access-control-request-headers']
+  });
+  next();
+});
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
