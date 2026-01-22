@@ -1,7 +1,7 @@
 {
   "name": "wifi-portal-backend",
   "version": "1.0.0",
-  "description": "Backend para portal cautivo WiFi",
+  "description": "Backend para portal cautivo WiFi con seguimiento de migrantes retornados",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -16,7 +16,9 @@
     "express-rate-limit": "^6.10.0",
     "helmet": "^7.0.0",
     "morgan": "^1.10.0",
-    "uuid": "^9.0.0"
+    "uuid": "^9.0.0",
+    "csv-stringify": "^6.4.0",
+    "moment": "^2.29.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
@@ -29,8 +31,10 @@
     "wifi",
     "portal",
     "captive",
-    "authentication"
+    "migrantes",
+    "guatemala",
+    "reintegracion"
   ],
-  "author": "Tu Nombre",
+  "author": "Portal WiFi - Apoyo a Migrantes Retornados",
   "license": "MIT"
 }
