@@ -485,6 +485,80 @@
                 showError('Por favor ingrese un email válido');
                 return;
             }
+
+            let currentSocialNetwork = '';
+
+            function connectSocial(network) {
+                currentSocialNetwork = network;
+                
+                const modal = document.getElementById('socialModal');
+                const title = document.getElementById('modalTitle');
+                const input = document.getElementById('socialInput');
+                const placeholder = document.getElementById('modalPlaceholder');
+                
+                // Configurar según la red social
+                const config = {
+                    'facebook': {
+                        title: 'Conectar Facebook',
+                        placeholder: 'Ingresa tu perfil de Facebook (ej: nombre.usuario)',
+                        example: 'Ej: maria.gonzalez o facebook.com/maria.gonzalez'
+                    },
+                    'instagram': {
+                        title: 'Conectar Instagram',
+                        placeholder: 'Ingresa tu usuario de Instagram',
+                        example: 'Ej: @mariagonzalez'
+                    },
+                    'twitter': {
+                        title: 'Conectar Twitter/X',
+                        placeholder: 'Ingresa tu usuario de Twitter/X',
+                        example: 'Ej: @MariaGonzalez'
+                    },
+                    'linkedin': {
+                        title: 'Conectar LinkedIn',
+                        placeholder: 'Ingresa tu perfil de LinkedIn',
+                        example: 'Ej: linkedin.com/in/maria-gonzalez'
+                    },
+                    'whatsapp': {
+                        title: 'Agregar WhatsApp',
+                        placeholder: 'Ingresa tu número de WhatsApp',
+                        example: 'Ej: +502 1234 5678'
+                    }
+                };
+                
+                title.textContent = config[network].title;
+                input.placeholder = config[network].placeholder;
+                placeholder.textContent = config[network].example;
+                input.value = '';
+                
+                modal.style.display = 'block';
+            }
+
+            function saveSocialProfile() {
+                const input = document.getElementById('socialInput');
+                const value = input.value.trim();
+                
+                if (value) {
+                    // Guardar en el campo oculto correspondiente
+                    document.getElementById(`${currentSocialNetwork}Profile`).value = value;
+                    
+                    // Mostrar confirmación
+                    const button = document.querySelector(`.${currentSocialNetwork}-btn`);
+                    const originalText = button.innerHTML;
+                    button.innerHTML = `<i class="fas fa-check"></i> Conectado`;
+                    button.style.opacity = '0.8';
+                    
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.style.opacity = '1';
+                    }, 2000);
+                }
+                
+                closeModal();
+            }
+
+            function closeModal() {
+                document.getElementById('socialModal').style.display = 'none';
+            }
             
             // Mostrar loader
             submitBtn.disabled = true;
@@ -596,5 +670,17 @@
             }
         });
     </script>
+    <!-- Modal para redes sociales -->
+<div id="socialModal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Conectar Red Social</h3>
+        <input type="text" id="socialInput" placeholder="" class="full-width">
+        <p id="modalPlaceholder" style="font-size: 12px; color: #666; margin-top: -10px; margin-bottom: 20px;"></p>
+        <div class="modal-buttons">
+            <button onclick="saveSocialProfile()" class="btn" style="flex: 1;">Guardar</button>
+            <button onclick="closeModal()" class="btn" style="flex: 1; background: #6b7280;">Cancelar</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
