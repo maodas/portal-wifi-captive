@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Portal - Apoyo a Migrantes Retornados</title>
+    <title>Admin Portal - Portal WiFi Cautivo</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/min/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/locale/es.min.js"></script>
@@ -193,7 +193,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 1000px;
+            min-width: 900px;
         }
         
         thead {
@@ -530,11 +530,10 @@
         <div class="header">
             <h1>
                 <i class="fas fa-users"></i>
-                Panel de Administración - Apoyo a Migrantes Retornados
+                Panel de Administración - Portal WiFi Cautivo
             </h1>
             <p>
-                Sistema de seguimiento y contacto para migrantes retornados en Guatemala. 
-                Gestión de usuarios, contactos y oportunidades laborales.
+                Sistema de gestión de usuarios del portal WiFi. Visualiza, contacta y administra los usuarios registrados.
             </p>
         </div>
         
@@ -551,21 +550,21 @@
             </div>
             
             <div class="stat-card">
-                <h3><i class="fas fa-phone-alt"></i> Contactados</h3>
-                <div class="value" id="contactedUsers">0</div>
-                <div class="change" id="contactRate">Tasa: 0%</div>
-            </div>
-            
-            <div class="stat-card">
-                <h3><i class="fas fa-briefcase"></i> Buscan Empleo</h3>
-                <div class="value" id="jobSeekers">0</div>
-                <div class="change" id="employmentRate">Empleados: 0</div>
+                <h3><i class="fas fa-phone-alt"></i> Con Redes Sociales</h3>
+                <div class="value" id="withSocialUsers">0</div>
+                <div class="change" id="socialRate">0%</div>
             </div>
             
             <div class="stat-card">
                 <h3><i class="fas fa-wifi"></i> Conexiones Hoy</h3>
                 <div class="value" id="todayConnections">0</div>
-                <div class="change positive" id="connectionTrend">+0% vs ayer</div>
+                <div class="change" id="connectionTrend">+0%</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3><i class="fas fa-chart-line"></i> Tasa de Crecimiento</h3>
+                <div class="value" id="growthRate">0%</div>
+                <div class="change">Últimos 7 días</div>
             </div>
         </div>
         
@@ -580,26 +579,22 @@
                     <!-- Filtros -->
                     <div class="filters">
                         <div class="filter-group">
-                            <label for="statusFilter">Estado Migratorio</label>
+                            <label for="statusFilter">Estado</label>
                             <select id="statusFilter" onchange="loadUsers()">
                                 <option value="">Todos</option>
-                                <option value="retornado">Retornado</option>
-                                <option value="en_transito">En Tránsito</option>
-                                <option value="establecido">Establecido</option>
-                                <option value="busca_empleo">Busca Empleo</option>
-                                <option value="empleado">Empleado</option>
+                                <option value="active">Activos</option>
+                                <option value="completed">Completados</option>
+                                <option value="blocked">Bloqueados</option>
                             </select>
                         </div>
                         
                         <div class="filter-group">
-                            <label for="departmentFilter">Departamento</label>
-                            <select id="departmentFilter" onchange="loadUsers()">
-                                <option value="">Todos</option>
-                                <option value="Guatemala">Guatemala</option>
-                                <option value="Sacatepéquez">Sacatepéquez</option>
-                                <option value="Quetzaltenango">Quetzaltenango</option>
-                                <option value="Escuintla">Escuintla</option>
-                                <option value="Huehuetenango">Huehuetenango</option>
+                            <label for="dateFilter">Fecha</label>
+                            <select id="dateFilter" onchange="loadUsers()">
+                                <option value="">Todas las fechas</option>
+                                <option value="today">Hoy</option>
+                                <option value="week">Esta semana</option>
+                                <option value="month">Este mes</option>
                             </select>
                         </div>
                         
@@ -626,9 +621,9 @@
                                 <tr>
                                     <th>Nombre</th>
                                     <th>Contacto</th>
-                                    <th>Estado</th>
-                                    <th>Interés Laboral</th>
-                                    <th>Últ. Contacto</th>
+                                    <th>Redes Sociales</th>
+                                    <th>Fecha Registro</th>
+                                    <th>Código Acceso</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -644,10 +639,10 @@
                     </div>
                 </div>
                 
-                <!-- Gráficos -->
+                <!-- Gráfico de registros diarios -->
                 <div class="chart-container">
-                    <h3><i class="fas fa-chart-pie"></i> Distribución por Estado Migratorio</h3>
-                    <canvas id="migrationChart"></canvas>
+                    <h3><i class="fas fa-chart-bar"></i> Registros por Día (Últimos 7 días)</h3>
+                    <canvas id="dailyChart"></canvas>
                 </div>
             </div>
             
@@ -672,7 +667,6 @@
                                 <option value="llamada">Llamada</option>
                                 <option value="sms">SMS</option>
                                 <option value="email">Email</option>
-                                <option value="facebook">Facebook</option>
                             </select>
                         </div>
                         
@@ -680,10 +674,9 @@
                             <label for="messageTemplate">Plantilla</label>
                             <select id="messageTemplate" onchange="loadTemplate()">
                                 <option value="">Personalizado</option>
-                                <option value="welcome">Bienvenida</option>
-                                <option value="job_opportunity">Oportunidad Laboral</option>
+                                <option value="welcome">Bienvenida/Confirmación</option>
                                 <option value="follow_up">Seguimiento</option>
-                                <option value="support">Oferta de Apoyo</option>
+                                <option value="promotion">Promoción/Oferta</option>
                             </select>
                         </div>
                         
@@ -715,8 +708,8 @@
                             <i class="fab fa-whatsapp"></i> Para WhatsApp
                         </button>
                         
-                        <button class="btn" onclick="exportJobSeekers()" style="background: #f59e0b; color: white;">
-                            <i class="fas fa-briefcase"></i> Buscadores de Empleo
+                        <button class="btn" onclick="exportSocialUsers()" style="background: #8b5cf6; color: white;">
+                            <i class="fas fa-share-alt"></i> Usuarios con Redes
                         </button>
                     </div>
                     
@@ -786,22 +779,21 @@
             document.getElementById('totalUsers').textContent = stats.totalUsers || 0;
             document.getElementById('todayChange').textContent = `Hoy: ${stats.todayUsers || 0}`;
             
-            document.getElementById('contactedUsers').textContent = stats.contactStats?.contacted || 0;
-            document.getElementById('contactRate').textContent = `Tasa: ${stats.contactStats?.rate || 0}%`;
-            
-            // Calcular buscadores de empleo
-            const jobSeekers = stats.migrationStats?.busca_empleo || 0;
-            const employed = stats.migrationStats?.empleado || 0;
-            document.getElementById('jobSeekers').textContent = jobSeekers;
-            document.getElementById('employmentRate').textContent = `Empleados: ${employed}`;
+            document.getElementById('withSocialUsers').textContent = stats.withSocial || 0;
+            const socialRate = stats.totalUsers > 0 ? Math.round((stats.withSocial / stats.totalUsers) * 100) : 0;
+            document.getElementById('socialRate').textContent = `${socialRate}%`;
             
             document.getElementById('todayConnections').textContent = stats.todayUsers || 0;
             
-            // Actualizar gráfico
-            updateMigrationChart(stats.migrationStats);
+            // Calcular tasa de crecimiento (simplificada)
+            const growthRate = stats.todayUsers > 0 ? Math.round((stats.todayUsers / (stats.totalUsers / 30)) * 100) : 0;
+            document.getElementById('growthRate').textContent = `${growthRate}%`;
             
             // Actualizar estadísticas rápidas
             updateQuickStats(stats);
+            
+            // Actualizar gráfico de registros diarios
+            updateDailyChart();
         }
         
         async function loadUsers(page = 1) {
@@ -809,22 +801,61 @@
                 showLoader('usersTableBody');
                 
                 const status = document.getElementById('statusFilter').value;
-                const department = document.getElementById('departmentFilter').value;
+                const dateFilter = document.getElementById('dateFilter').value;
                 const search = document.getElementById('searchInput').value;
                 
                 let url = `${API_BASE_URL}/api/users?page=${page}&limit=${pageSize}`;
-                if (status) url += `&migrationStatus=${status}`;
-                if (department) url += `&department=${department}`;
+                if (status) url += `&status=${status}`;
                 
                 const response = await fetch(url);
                 const data = await response.json();
                 
                 if (data.success) {
-                    currentUsers = data.data;
-                    currentPage = data.page;
-                    totalPages = data.totalPages;
+                    // Filtrar por fecha si es necesario
+                    let filteredUsers = data.data;
                     
-                    renderUsersTable(currentUsers);
+                    if (dateFilter) {
+                        const now = new Date();
+                        filteredUsers = filteredUsers.filter(user => {
+                            const userDate = new Date(user.createdAt || user.accessDate);
+                            
+                            switch(dateFilter) {
+                                case 'today':
+                                    return userDate.toDateString() === now.toDateString();
+                                case 'week':
+                                    const weekAgo = new Date();
+                                    weekAgo.setDate(weekAgo.getDate() - 7);
+                                    return userDate >= weekAgo;
+                                case 'month':
+                                    const monthAgo = new Date();
+                                    monthAgo.setMonth(monthAgo.getMonth() - 1);
+                                    return userDate >= monthAgo;
+                                default:
+                                    return true;
+                            }
+                        });
+                    }
+                    
+                    // Filtrar por búsqueda
+                    if (search) {
+                        const searchLower = search.toLowerCase();
+                        filteredUsers = filteredUsers.filter(user => 
+                            (user.fullName && user.fullName.toLowerCase().includes(searchLower)) ||
+                            (user.phone && user.phone.toLowerCase().includes(searchLower)) ||
+                            (user.email && user.email.toLowerCase().includes(searchLower))
+                        );
+                    }
+                    
+                    currentUsers = filteredUsers;
+                    currentPage = page;
+                    totalPages = Math.ceil(filteredUsers.length / pageSize) || 1;
+                    
+                    // Paginar
+                    const startIndex = (page - 1) * pageSize;
+                    const endIndex = startIndex + pageSize;
+                    const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+                    
+                    renderUsersTable(paginatedUsers);
                     renderPagination();
                 }
             } catch (error) {
@@ -852,24 +883,12 @@
             users.forEach(user => {
                 const row = document.createElement('tr');
                 
-                // Estado migratorio
-                let statusBadge = '';
-                switch(user.migrationStatus) {
-                    case 'retornado':
-                        statusBadge = '<span class="badge badge-warning">Retornado</span>';
-                        break;
-                    case 'busca_empleo':
-                        statusBadge = '<span class="badge badge-danger">Busca Empleo</span>';
-                        break;
-                    case 'empleado':
-                        statusBadge = '<span class="badge badge-success">Empleado</span>';
-                        break;
-                    case 'establecido':
-                        statusBadge = '<span class="badge badge-info">Establecido</span>';
-                        break;
-                    default:
-                        statusBadge = `<span class="badge">${user.migrationStatus}</span>`;
-                }
+                // Formatear fecha
+                const formatDate = (dateString) => {
+                    if (!dateString) return 'No disponible';
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('es-GT');
+                };
                 
                 // Contacto
                 let contactInfo = `
@@ -879,42 +898,56 @@
                 
                 // Redes sociales
                 let socialIcons = '';
-                if (user.facebook) socialIcons += `<span class="social-icon fb-icon" title="Facebook: ${user.facebook}"><i class="fab fa-facebook-f"></i></span>`;
-                if (user.instagram) socialIcons += `<span class="social-icon ig-icon" title="Instagram: ${user.instagram}"><i class="fab fa-instagram"></i></span>`;
-                if (user.whatsappNumber) socialIcons += `<span class="social-icon wa-icon" title="WhatsApp: ${user.whatsappNumber}"><i class="fab fa-whatsapp"></i></span>`;
+                let socialCount = 0;
                 
-                if (socialIcons) {
-                    contactInfo += `<div style="margin-top: 5px;">${socialIcons}</div>`;
+                if (user.facebookProfile) {
+                    socialIcons += `<span class="social-icon fb-icon" title="Facebook: ${user.facebookProfile}"><i class="fab fa-facebook-f"></i></span>`;
+                    socialCount++;
+                }
+                if (user.instagramProfile) {
+                    socialIcons += `<span class="social-icon ig-icon" title="Instagram: ${user.instagramProfile}"><i class="fab fa-instagram"></i></span>`;
+                    socialCount++;
+                }
+                if (user.whatsappNumber) {
+                    socialIcons += `<span class="social-icon wa-icon" title="WhatsApp: ${user.whatsappNumber}"><i class="fab fa-whatsapp"></i></span>`;
+                    socialCount++;
+                }
+                if (user.twitterProfile) {
+                    socialIcons += `<span class="social-icon tw-icon" title="Twitter: ${user.twitterProfile}"><i class="fab fa-twitter"></i></span>`;
+                    socialCount++;
+                }
+                if (user.linkedinProfile) {
+                    socialIcons += `<span class="social-icon li-icon" title="LinkedIn: ${user.linkedinProfile}"><i class="fab fa-linkedin-in"></i></span>`;
+                    socialCount++;
                 }
                 
-                // Interés laboral
-                const interests = user.employmentInterest?.slice(0, 3).join(', ') || 'No especificado';
+                const socialInfo = socialCount > 0 
+                    ? `<div>${socialIcons}<span style="font-size: 12px; color: #64748b;">${socialCount} red(es)</span></div>`
+                    : '<div style="color: #64748b; font-size: 12px;">Sin redes</div>';
                 
-                // Último contacto
-                let lastContact = 'No contactado';
-                if (user.lastContactAttempt) {
-                    const date = new Date(user.lastContactAttempt);
-                    lastContact = `
-                        <div>${date.toLocaleDateString('es-GT')}</div>
-                        <div style="font-size: 12px; color: #64748b;">${user.contactAttempts || 0} intentos</div>
-                    `;
-                }
+                // Fecha de registro
+                const registerDate = formatDate(user.createdAt || user.accessDate);
                 
                 row.innerHTML = `
                     <td>
-                        <div style="font-weight: 600;">${user.fullName}</div>
-                        <div style="font-size: 12px; color: #64748b;">
-                            ${user.location?.department || 'Sin ubicación'}
-                        </div>
+                        <div style="font-weight: 600;">${user.fullName || 'Sin nombre'}</div>
                     </td>
                     <td>${contactInfo}</td>
-                    <td>${statusBadge}</td>
+                    <td>${socialInfo}</td>
                     <td>
-                        <div>${interests}</div>
-                        ${user.skills?.length > 0 ? 
-                            `<div style="font-size: 12px; color: #64748b;">Habilidades: ${user.skills.slice(0, 2).join(', ')}</div>` : ''}
+                        <div>${registerDate}</div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            ${user.sessionId ? `Sesión: ${user.sessionId.substring(0, 8)}...` : ''}
+                        </div>
                     </td>
-                    <td>${lastContact}</td>
+                    <td>
+                        <div style="font-family: monospace; font-weight: 600; color: var(--primary);">
+                            ${user.accessCode || 'N/A'}
+                        </div>
+                        <div style="font-size: 12px; color: #64748b;">
+                            ${user.wifiNetwork || 'WiFi-Gratis'}
+                        </div>
+                    </td>
                     <td>
                         <div class="action-buttons">
                             <button class="btn btn-sm btn-primary" onclick="viewUserDetail('${user._id || user.id}')">
@@ -969,14 +1002,15 @@
         
         async function loadQuickUsers() {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/users/contactable`);
+                const response = await fetch(`${API_BASE_URL}/api/users`);
                 const data = await response.json();
                 
                 if (data.success) {
                     const select = document.getElementById('quickUserSelect');
                     select.innerHTML = '<option value="">Seleccionar usuario...</option>';
                     
-                    data.data.slice(0, 20).forEach(user => {
+                    // Mostrar solo usuarios activos
+                    data.data.filter(user => user.status === 'active').slice(0, 20).forEach(user => {
                         const option = document.createElement('option');
                         option.value = user._id || user.id;
                         option.textContent = `${user.fullName} - ${user.phone || user.email}`;
@@ -995,10 +1029,9 @@
             const messageBox = document.getElementById('quickMessage');
             
             const templates = {
-                welcome: 'Hola [nombre], te damos la bienvenida de regreso a Guatemala. Somos del programa de apoyo a migrantes retornados. ¿En qué podemos ayudarte?',
-                job_opportunity: 'Hola [nombre], tenemos oportunidades laborales que podrían interesarte. ¿Te gustaría saber más sobre las vacantes disponibles?',
-                follow_up: 'Hola [nombre], te contactamos para seguir tu proceso de reintegración. ¿Cómo te ha ido en la búsqueda de empleo? ¿Necesitas algún tipo de apoyo?',
-                support: 'Hola [nombre], sabemos que el retorno puede ser difícil. Ofrecemos apoyo en empleo, documentación y otros servicios. ¿Necesitas asistencia?'
+                welcome: 'Hola [nombre], confirmamos tu registro exitoso en nuestro portal WiFi. Tu código de acceso es válido por 24 horas. ¡Disfruta de tu conexión!',
+                follow_up: 'Hola [nombre], esperamos que estés disfrutando de tu conexión WiFi. ¿Te gustaría recibir información sobre nuestras promociones y servicios?',
+                promotion: 'Hola [nombre], como usuario de nuestro WiFi, tienes acceso exclusivo a promociones. Contáctanos para conocer nuestras ofertas especiales.'
             };
             
             if (template && templates[template]) {
@@ -1045,7 +1078,7 @@
         
         function contactUser(userId, userName) {
             document.getElementById('quickUserSelect').value = userId;
-            document.getElementById('quickMessage').value = `Hola ${userName}, te contactamos del programa de apoyo a migrantes retornados. ¿Cómo estás?`;
+            document.getElementById('quickMessage').value = `Hola ${userName}, te contactamos del servicio WiFi. ¿Cómo estás?`;
             
             // Scroll al formulario de contacto
             document.querySelector('.contact-form').scrollIntoView({ behavior: 'smooth' });
@@ -1054,28 +1087,29 @@
         // ========== FUNCIONES DE VISUALIZACIÓN ==========
         
         function setupCharts() {
-            window.migrationChart = new Chart(
-                document.getElementById('migrationChart').getContext('2d'),
+            // Gráfico de registros diarios
+            window.dailyChart = new Chart(
+                document.getElementById('dailyChart').getContext('2d'),
                 {
-                    type: 'doughnut',
+                    type: 'bar',
                     data: {
                         labels: [],
                         datasets: [{
+                            label: 'Registros',
                             data: [],
-                            backgroundColor: [
-                                '#f59e0b', // Retornado
-                                '#ef4444', // Busca empleo
-                                '#10b981', // Empleado
-                                '#3b82f6', // Establecido
-                                '#8b5cf6'  // En tránsito
-                            ]
+                            backgroundColor: '#4f46e5',
+                            borderColor: '#4338ca',
+                            borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: {
-                            legend: {
-                                position: 'bottom'
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    stepSize: 1
+                                }
                             }
                         }
                     }
@@ -1083,62 +1117,53 @@
             );
         }
         
-        function updateMigrationChart(migrationStats) {
-            if (!window.migrationChart || !migrationStats) return;
+        function updateDailyChart() {
+            if (!window.dailyChart) return;
             
-            const labels = [];
-            const data = [];
-            const colors = {
-                'retornado': '#f59e0b',
-                'busca_empleo': '#ef4444',
-                'empleado': '#10b981',
-                'establecido': '#3b82f6',
-                'en_transito': '#8b5cf6'
-            };
+            // Simular datos de los últimos 7 días (en una implementación real, esto vendría del backend)
+            const last7Days = [];
+            const today = new Date();
             
-            for (const [status, count] of Object.entries(migrationStats)) {
-                const label = status === 'retornado' ? 'Retornado' :
-                             status === 'busca_empleo' ? 'Busca Empleo' :
-                             status === 'empleado' ? 'Empleado' :
-                             status === 'establecido' ? 'Establecido' :
-                             status === 'en_transito' ? 'En Tránsito' : status;
-                
-                labels.push(label);
-                data.push(count);
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(today.getDate() - i);
+                const dayName = date.toLocaleDateString('es-GT', { weekday: 'short' });
+                const dayNum = date.getDate();
+                last7Days.push(`${dayName} ${dayNum}`);
             }
             
-            window.migrationChart.data.labels = labels;
-            window.migrationChart.data.datasets[0].data = data;
-            window.migrationChart.update();
+            // Datos de ejemplo (en producción vendrían de una API)
+            const exampleData = [3, 5, 7, 4, 8, 6, 9];
+            
+            window.dailyChart.data.labels = last7Days;
+            window.dailyChart.data.datasets[0].data = exampleData;
+            window.dailyChart.update();
         }
         
         function updateQuickStats(stats) {
             const quickStatsDiv = document.getElementById('quickStats');
             
             const total = stats.totalUsers || 0;
-            const contacted = stats.contactStats?.contacted || 0;
-            const successful = stats.contactStats?.successful || 0;
-            const jobSeekers = stats.migrationStats?.busca_empleo || 0;
-            
-            const contactRate = total > 0 ? Math.round((contacted / total) * 100) : 0;
-            const successRate = contacted > 0 ? Math.round((successful / contacted) * 100) : 0;
+            const today = stats.todayUsers || 0;
+            const withSocial = stats.withSocial || 0;
+            const socialRate = total > 0 ? Math.round((withSocial / total) * 100) : 0;
             
             quickStatsDiv.innerHTML = `
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span>Tasa de contacto:</span>
-                    <span style="font-weight: 600;">${contactRate}%</span>
+                    <span>Total usuarios:</span>
+                    <span style="font-weight: 600;">${total}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span>Contactos exitosos:</span>
-                    <span style="font-weight: 600;">${successRate}%</span>
+                    <span>Registros hoy:</span>
+                    <span style="font-weight: 600;">${today}</span>
                 </div>
                 <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                    <span>Buscando empleo:</span>
-                    <span style="font-weight: 600;">${jobSeekers}</span>
+                    <span>Con redes sociales:</span>
+                    <span style="font-weight: 600;">${socialRate}%</span>
                 </div>
                 <div style="display: flex; justify-content: space-between;">
-                    <span>Con redes sociales:</span>
-                    <span style="font-weight: 600;">${stats.withSocial || 0}</span>
+                    <span>Estado activos:</span>
+                    <span style="font-weight: 600;">${stats.totalUsers - (stats.todayUsers || 0)}</span>
                 </div>
             `;
         }
@@ -1157,19 +1182,24 @@
             window.open(`${API_BASE_URL}/api/export/contacts?channel=whatsapp`, '_blank');
         }
         
-        function exportJobSeekers() {
-            window.open(`${API_BASE_URL}/api/export/contacts?status=busca_empleo`, '_blank');
+        function exportSocialUsers() {
+            const params = new URLSearchParams();
+            params.append('withSocial', 'true');
+            window.open(`${API_BASE_URL}/api/export/contacts?${params.toString()}`, '_blank');
         }
         
         function exportData() {
             const status = document.getElementById('statusFilter').value;
-            const department = document.getElementById('departmentFilter').value;
+            const dateFilter = document.getElementById('dateFilter').value;
             
             let url = `${API_BASE_URL}/api/export/csv`;
-            if (status || department) {
-                url += '?';
-                if (status) url += `status=${status}`;
-                if (department) url += `${status ? '&' : ''}department=${department}`;
+            const params = [];
+            
+            if (status) params.push(`status=${status}`);
+            if (dateFilter) params.push(`date=${dateFilter}`);
+            
+            if (params.length > 0) {
+                url += `?${params.join('&')}`;
             }
             
             window.open(url, '_blank');
@@ -1179,17 +1209,27 @@
         
         async function viewUserDetail(userId) {
             try {
-                const response = await fetch(`${API_BASE_URL}/api/users`);
-                const data = await response.json();
-                
-                if (data.success) {
-                    const user = data.data.find(u => u._id === userId || u.id === userId);
-                    if (user) {
-                        showUserDetailModal(user);
+                // Buscar el usuario en los datos actuales
+                const user = currentUsers.find(u => (u._id === userId || u.id === userId));
+                if (user) {
+                    showUserDetailModal(user);
+                } else {
+                    // Si no está en los datos actuales, cargarlo del API
+                    const response = await fetch(`${API_BASE_URL}/api/users`);
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        const foundUser = data.data.find(u => u._id === userId || u.id === userId);
+                        if (foundUser) {
+                            showUserDetailModal(foundUser);
+                        } else {
+                            showError('Usuario no encontrado');
+                        }
                     }
                 }
             } catch (error) {
                 console.error('Error cargando detalle:', error);
+                showError('Error al cargar detalles del usuario');
             }
         }
         
@@ -1210,14 +1250,22 @@
                 });
             };
             
+            // Contar redes sociales
+            let socialCount = 0;
+            if (user.facebookProfile) socialCount++;
+            if (user.instagramProfile) socialCount++;
+            if (user.whatsappNumber) socialCount++;
+            if (user.twitterProfile) socialCount++;
+            if (user.linkedinProfile) socialCount++;
+            
             // Generar contenido
             content.innerHTML = `
-                <h2 style="margin-bottom: 20px; color: var(--primary);">${user.fullName}</h2>
+                <h2 style="margin-bottom: 20px; color: var(--primary);">${user.fullName || 'Usuario'}</h2>
                 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 25px;">
                     <div>
                         <h3 style="color: var(--dark); margin-bottom: 15px; font-size: 18px;">
-                            <i class="fas fa-info-circle"></i> Información Personal
+                            <i class="fas fa-info-circle"></i> Información de Contacto
                         </h3>
                         
                         <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
@@ -1232,75 +1280,74 @@
                             </div>
                             
                             <div style="margin-bottom: 15px;">
-                                <strong>Ubicación:</strong>
-                                <div style="color: var(--dark);">
-                                    ${user.location?.department || 'No especificado'}
-                                    ${user.location?.municipality ? `, ${user.location.municipality}` : ''}
-                                </div>
-                            </div>
-                            
-                            <div>
-                                <strong>Miembros de familia:</strong>
-                                <div style="color: var(--dark);">${user.familyMembers || 0}</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <h3 style="color: var(--dark); margin-bottom: 15px; font-size: 18px;">
-                            <i class="fas fa-briefcase"></i> Situación Laboral
-                        </h3>
-                        
-                        <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
-                            <div style="margin-bottom: 15px;">
-                                <strong>Estado migratorio:</strong>
+                                <strong>Estado:</strong>
                                 <div>
-                                    <span class="badge ${user.migrationStatus === 'empleado' ? 'badge-success' : 
-                                                         user.migrationStatus === 'busca_empleo' ? 'badge-danger' : 
-                                                         user.migrationStatus === 'retornado' ? 'badge-warning' : 'badge-info'}">
-                                        ${user.migrationStatus || 'No especificado'}
+                                    <span class="badge ${user.status === 'active' ? 'badge-success' : 
+                                                     user.status === 'completed' ? 'badge-info' : 
+                                                     user.status === 'blocked' ? 'badge-danger' : 'badge-warning'}">
+                                        ${user.status || 'active'}
                                     </span>
                                 </div>
                             </div>
                             
-                            <div style="margin-bottom: 15px;">
-                                <strong>Interés laboral:</strong>
-                                <div style="color: var(--dark);">
-                                    ${user.employmentInterest?.join(', ') || 'No especificado'}
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 15px;">
-                                <strong>Habilidades:</strong>
-                                <div style="color: var(--dark);">
-                                    ${user.skills?.join(', ') || 'No especificado'}
-                                </div>
-                            </div>
-                            
                             <div>
-                                <strong>Necesita apoyo en:</strong>
-                                <div style="color: var(--dark);">${user.needsSupport || 'No especificado'}</div>
+                                <strong>ID de Sesión:</strong>
+                                <div style="font-family: monospace; font-size: 12px; color: #64748b; word-break: break-all;">
+                                    ${user.sessionId || 'No disponible'}
+                                </div>
                             </div>
                         </div>
                     </div>
                     
                     <div>
                         <h3 style="color: var(--dark); margin-bottom: 15px; font-size: 18px;">
-                            <i class="fas fa-network-wired"></i> Redes Sociales
+                            <i class="fas fa-wifi"></i> Información de Conexión
                         </h3>
                         
                         <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
-                            ${user.facebook ? `
+                            <div style="margin-bottom: 15px;">
+                                <strong>Código de acceso:</strong>
+                                <div style="font-family: monospace; font-size: 18px; font-weight: 600; color: var(--primary);">
+                                    ${user.accessCode || 'N/A'}
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <strong>Red WiFi:</strong>
+                                <div style="color: var(--dark);">${user.wifiNetwork || 'WiFi-Gratis'}</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <strong>Dirección IP:</strong>
+                                <div style="color: var(--dark); font-family: monospace;">${user.ipAddress || 'No registrada'}</div>
+                            </div>
+                            
+                            <div>
+                                <strong>Información del dispositivo:</strong>
+                                <div style="font-size: 12px; color: #64748b; max-height: 60px; overflow-y: auto;">
+                                    ${user.deviceInfo ? JSON.parse(user.deviceInfo).userAgent || 'No disponible' : 'No disponible'}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 style="color: var(--dark); margin-bottom: 15px; font-size: 18px;">
+                            <i class="fas fa-share-alt"></i> Redes Sociales (${socialCount})
+                        </h3>
+                        
+                        <div style="background: #f8fafc; padding: 20px; border-radius: 10px;">
+                            ${user.facebookProfile ? `
                                 <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                                     <span class="social-icon fb-icon"><i class="fab fa-facebook-f"></i></span>
-                                    <span>${user.facebook}</span>
+                                    <span>${user.facebookProfile}</span>
                                 </div>
                             ` : ''}
                             
-                            ${user.instagram ? `
+                            ${user.instagramProfile ? `
                                 <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                                     <span class="social-icon ig-icon"><i class="fab fa-instagram"></i></span>
-                                    <span>${user.instagram}</span>
+                                    <span>${user.instagramProfile}</span>
                                 </div>
                             ` : ''}
                             
@@ -1311,21 +1358,21 @@
                                 </div>
                             ` : ''}
                             
-                            ${user.twitter ? `
+                            ${user.twitterProfile ? `
                                 <div style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
                                     <span class="social-icon tw-icon"><i class="fab fa-twitter"></i></span>
-                                    <span>${user.twitter}</span>
+                                    <span>${user.twitterProfile}</span>
                                 </div>
                             ` : ''}
                             
-                            ${user.linkedin ? `
+                            ${user.linkedinProfile ? `
                                 <div style="display: flex; align-items: center; gap: 10px;">
                                     <span class="social-icon li-icon"><i class="fab fa-linkedin-in"></i></span>
-                                    <span>${user.linkedin}</span>
+                                    <span>${user.linkedinProfile}</span>
                                 </div>
                             ` : ''}
                             
-                            ${!user.facebook && !user.instagram && !user.whatsappNumber && !user.twitter && !user.linkedin ? 
+                            ${socialCount === 0 ? 
                                 '<div style="color: var(--gray);">No hay redes sociales registradas</div>' : ''}
                         </div>
                     </div>
@@ -1346,14 +1393,19 @@
                                 <div style="color: var(--dark);">${formatDate(user.lastAccess)}</div>
                             </div>
                             
-                            <div style="margin-bottom: 15px;">
-                                <strong>Último contacto:</strong>
-                                <div style="color: var(--dark);">${formatDate(user.lastContactAttempt)}</div>
-                            </div>
+                            ${user.lastContactAttempt ? `
+                                <div style="margin-bottom: 15px;">
+                                    <strong>Último contacto:</strong>
+                                    <div style="color: var(--dark);">${formatDate(user.lastContactAttempt)}</div>
+                                </div>
+                            ` : ''}
                             
                             <div>
-                                <strong>Intentos de contacto:</strong>
-                                <div style="color: var(--dark);">${user.contactAttempts || 0}</div>
+                                <strong>Comunicaciones:</strong>
+                                <div style="color: var(--dark);">
+                                    ${user.contactAttempts || 0} intentos
+                                    ${user.contactSuccess ? ' (Éxito)' : ''}
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1382,7 +1434,7 @@
         
         function editUser(userId) {
             // Implementar edición de usuario
-            alert('Edición de usuario - En desarrollo');
+            alert('Función de edición - En desarrollo\n\nSe implementará en una próxima versión.');
         }
         
         // ========== FUNCIONES UTILITARIAS ==========
