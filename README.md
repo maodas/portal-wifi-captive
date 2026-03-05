@@ -103,5 +103,182 @@ Backend	Node.js, Express
 Base de Datos	MongoDB Atlas
 Panel Admin	HTML, CSS, JavaScript, Chart.js, Moment.js
 Seguridad	Helmet, CORS, express-rate-limit
-Despliegue	Render (backend), GitHub Pages / Netlify (frontend)
-Control de Versiones	Git + GitHub
+
+📦 Requisitos Previos
+
+    Node.js (v14 o superior)
+
+    npm o yarn
+
+    Cuenta en MongoDB Atlas (gratuita)
+
+    (Opcional) Cuenta en Render para despliegue
+
+🔧 Instalación y Despliegue Local
+
+    1.Clonar el repositorio
+    
+    git clone https://github.com/maodas/portal-wifi-captive.git
+    cd portal-wifi-captive
+
+    2.Configurar el backend
+    cd backend
+    cp .env.example .env
+    # Editar .env con tus credenciales de MongoDB Atlas y otras variables
+    npm install
+
+    3.Iniciar el servidor local
+    npm run dev   # o node server.js
+
+El servidor correrá en http://localhost:3001 (o el puerto definido en .env).
+
+Abrir el portal de registro
+
+    Abre el archivo frontend/index.html directamente en el navegador o sírvelo con un servidor local (por ejemplo, usando Live Server de VS Code).
+
+    Asegúrate de que la constante API_URL en el script apunte a http://localhost:3001/api.
+
+Acceder al panel de administración
+
+    Visita http://localhost:3001/admin en tu navegador.
+
+☁️ Despliegue en Render (Producción)
+
+Render permite desplegar el backend Node.js fácilmente. El repositorio incluye archivos de configuración (render.yaml y Procfile).
+Pasos rápidos:
+
+    Crea una cuenta en Render.
+
+    Conecta tu repositorio de GitHub.
+
+    Crea un nuevo Web Service seleccionando el repositorio.
+
+    Configura:
+
+        Nombre: portal-wifi-backend
+
+        Entorno: Node
+
+        Build Command: npm install
+
+        Start Command: node server.js
+
+        Plan: Gratuito
+
+    Agrega las variables de entorno (ver sección siguiente).
+
+    Haz clic en Create Web Service.
+
+Render te proporcionará una URL como https://portal-wifi-backend.onrender.com.
+Despliegue del frontend (portal de registro)
+
+Puedes alojar el archivo index.html estático en GitHub Pages, Netlify o Vercel. Solo asegúrate de actualizar la constante API_URL en el script para que apunte a tu backend en Render.
+
+Ejemplo en frontend/index.html:
+
+    const API_URL = 'https://portal-wifi-backend.onrender.com/api';
+
+🔐 Variables de Entorno
+
+Crea un archivo .env en la carpeta backend con el siguiente contenido (ajusta los valores):
+
+    # =============================================
+    # CONFIGURACIÓN BACKEND - PORTAL WiFi MIGRANTES
+    # =============================================
+    
+    # MongoDB Atlas Connection String
+    MONGODB_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/wifi-portal?retryWrites=true&w=majority
+    
+    # Puerto del servidor
+    PORT=10000
+    
+    # Entorno (production/development)
+    NODE_ENV=production
+    
+    # URLs permitidas para CORS (separadas por coma)
+    ALLOWED_ORIGINS=https://tu-frontend.onrender.com,http://localhost:3000,http://localhost:5500
+    
+    # Redirección después del registro
+    FRONTEND_REDIRECT=https://www.google.com
+    
+    # Configuraciones específicas para Guatemala (opcional)
+    DEFAULT_DEPARTMENT=Guatemala
+    DEFAULT_MUNICIPALITY=Ciudad de Guatemala
+    SUPPORT_EMAIL=contacto@apoyomigrantesgt.org
+    SUPPORT_PHONE=+502 1234 5678
+
+Nota: Nunca subas tu archivo .env al repositorio. En producción (Render), configura estas variables en el panel de "Environment Variables".
+
+🖥️ Uso del Panel de Administración
+
+El panel está disponible en la ruta /admin de tu backend (ej. https://portal-wifi-backend.onrender.com/admin).
+Funcionalidades destacadas:
+
+    Filtros y búsqueda: Filtra por estado (activo/completado/bloqueado), fecha (hoy, semana, mes) y busca por nombre, teléfono o email.
+
+    Tabla de usuarios:
+
+        Ver información básica y redes sociales conectadas.
+
+        Botones de acción: Ver detalle (modal con toda la info), Contactar (rellena el formulario de contacto rápido), Editar (en desarrollo).
+
+    Contacto rápido:
+
+        Selecciona un usuario y un canal (WhatsApp, llamada, SMS, email).
+
+        Elige una plantilla o escribe un mensaje personalizado.
+
+        Cada envío queda registrado en el historial del usuario.
+
+    Exportaciones:
+
+        Todos los datos: CSV completo.
+
+        Lista de contactos: nombre, teléfono, email.
+
+        Para WhatsApp: solo números de teléfono (formato compatible).
+
+        Usuarios con redes sociales: aquellos que vincularon al menos una red.
+
+    Estadísticas:
+
+        Total de usuarios, conexiones hoy, usuarios con redes, tasa de crecimiento.
+
+        Gráfico de registros diarios (últimos 7 días).
+
+    Detalle de usuario:
+
+        Información completa de contacto, conexión, redes sociales e historial de comunicación.
+
+⚠️ Limitaciones y Pasos Futuros
+1. Registro automático con redes sociales (OAuth)
+
+Actualmente los usuarios deben ingresar manualmente sus perfiles sociales. Para una experiencia más fluida y datos verificados, se requiere implementar OAuth con Facebook, Google, etc. Esto permitiría:
+
+    Obtener nombre, email y foto de perfil automáticamente.
+
+    Reducir errores de escritura.
+
+    Aumentar la tasa de vinculación de redes.
+
+2. Integración con el hotspot WiFi
+
+El sistema no está conectado al controlador del punto de acceso. Para un portal cautivo real se necesita:
+
+    Configurar el router (MikroTik, pfSense, UniFi) para redirigir todo el tráfico HTTP a la página de registro.
+
+    Tras un registro exitoso, autorizar la dirección MAC del dispositivo en el firewall durante un tiempo determinado (ej. 24 horas).
+
+    Posible integración con servicios RADIUS o CoovaChilli.
+
+3. Otras mejoras sugeridas
+
+    Módulo de encuestas: al finalizar el registro, preguntar sobre necesidades específicas (empleo, vivienda, documentación).
+
+    Sistema de tickets de ayuda: para dar seguimiento a casos individuales.
+
+    Roles de usuario en el panel (admin, agente, observador).
+
+    Internacionalización (español/inglés) para retornados de otros países.
+
+    Envío masivo de mensajes mediante integración con Twilio (WhatsApp/SMS) o servicios de email.
